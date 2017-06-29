@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "/Users/aunger/Development/HelloWorld/platforms/android/build/intermediates/res/merged/F0/debug/drawable-ldpi/icon.png",
+        "source": "/Users/aunger/Development/HelloWorld/platforms/android/src/main/res/drawable-ldpi/icon.png"
+    },
+    {
+        "merged": "/Users/aunger/Development/HelloWorld/platforms/android/build/intermediates/res/merged/F0/debug/drawable-ldpi/logo.png",
+        "source": "/Users/aunger/Development/HelloWorld/platforms/android/src/main/res/drawable-ldpi/logo.png"
+    },
+    {
+        "merged": "/Users/aunger/Development/HelloWorld/platforms/android/build/intermediates/res/merged/F0/debug/drawable-ldpi/background.png",
+        "source": "/Users/aunger/Development/HelloWorld/platforms/android/src/main/res/drawable-ldpi/background.png"
+    }
+]

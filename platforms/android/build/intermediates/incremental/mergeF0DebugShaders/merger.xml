@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="main"><source path="/Users/aunger/Development/HelloWorld/platforms/android/src/main/shaders"/></dataSet><dataSet config="F0"><source path="/Users/aunger/Development/HelloWorld/platforms/android/src/F0/shaders"/></dataSet><dataSet config="debug"><source path="/Users/aunger/Development/HelloWorld/platforms/android/src/debug/shaders"/></dataSet><dataSet config="F0Debug"><source path="/Users/aunger/Development/HelloWorld/platforms/android/src/F0Debug/shaders"/></dataSet></merger>

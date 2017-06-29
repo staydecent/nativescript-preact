@@ -1,0 +1,94 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "nativescript-theme-core@~1.0.4",
+        "scope": null,
+        "escapedName": "nativescript-theme-core",
+        "name": "nativescript-theme-core",
+        "rawSpec": "~1.0.4",
+        "spec": ">=1.0.4 <1.1.0",
+        "type": "range"
+      },
+      "/Users/aunger/Development/HelloWorld/node_modules/nativescript-template-tutorial"
+    ]
+  ],
+  "_from": "nativescript-theme-core@>=1.0.4 <1.1.0",
+  "_id": "nativescript-theme-core@1.0.4",
+  "_inCache": true,
+  "_location": "/nativescript-theme-core",
+  "_nodeVersion": "6.9.1",
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/nativescript-theme-core-1.0.4.tgz_1492482511556_0.6798382652923465"
+  },
+  "_npmUser": {
+    "name": "walkerrunpdx",
+    "email": "walkerrunpdx@gmail.com"
+  },
+  "_npmVersion": "3.10.9",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "nativescript-theme-core@~1.0.4",
+    "scope": null,
+    "escapedName": "nativescript-theme-core",
+    "name": "nativescript-theme-core",
+    "rawSpec": "~1.0.4",
+    "spec": ">=1.0.4 <1.1.0",
+    "type": "range"
+  },
+  "_requiredBy": [
+    "/nativescript-template-tutorial"
+  ],
+  "_resolved": "https://registry.npmjs.org/nativescript-theme-core/-/nativescript-theme-core-1.0.4.tgz",
+  "_shasum": "cf2880c7fbf2fe5f43e2235d309750790803efe1",
+  "_shrinkwrap": null,
+  "_spec": "nativescript-theme-core@~1.0.4",
+  "_where": "/Users/aunger/Development/HelloWorld/node_modules/nativescript-template-tutorial",
+  "author": {
+    "name": "Telerik",
+    "email": "support@telerik.com"
+  },
+  "bugs": {
+    "url": "https://github.com/NativeScript/theme/issues"
+  },
+  "dependencies": {},
+  "description": "Telerik NativeScript Core Theme",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "cf2880c7fbf2fe5f43e2235d309750790803efe1",
+    "tarball": "https://registry.npmjs.org/nativescript-theme-core/-/nativescript-theme-core-1.0.4.tgz"
+  },
+  "homepage": "https://www.nativescript.org",
+  "license": "Apache-2.0",
+  "maintainers": [
+    {
+      "name": "tjvantoll",
+      "email": "tj.vantoll@gmail.com"
+    },
+    {
+      "name": "vakrilov",
+      "email": "alexander.vakrilov@gmail.com"
+    },
+    {
+      "name": "walkerrunpdx",
+      "email": "walkerrunpdx@gmail.com"
+    }
+  ],
+  "name": "nativescript-theme-core",
+  "nativescript": {
+    "platforms": {
+      "ios": "2.4.0",
+      "android": "2.4.0"
+    }
+  },
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NativeScript/theme.git"
+  },
+  "scripts": {},
+  "version": "1.0.4"
+}

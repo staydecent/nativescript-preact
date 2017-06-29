@@ -1,0 +1,6 @@
+rootProject.name = "HelloWorld"
+include "asbg"
+project(":asbg").projectDir = file("build-tools/android-static-binding-generator")
+
+include "runtime"
+project(":runtime").projectDir = file("build-tools/runtime-modules/runtime")

@@ -1,0 +1,107 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "tns-core-modules-widgets@3.0.1",
+        "scope": null,
+        "escapedName": "tns-core-modules-widgets",
+        "name": "tns-core-modules-widgets",
+        "rawSpec": "3.0.1",
+        "spec": "3.0.1",
+        "type": "version"
+      },
+      "/Users/aunger/Development/HelloWorld/node_modules/tns-core-modules"
+    ]
+  ],
+  "_from": "tns-core-modules-widgets@3.0.1",
+  "_id": "tns-core-modules-widgets@3.0.1",
+  "_inCache": true,
+  "_location": "/tns-core-modules-widgets",
+  "_nodeVersion": "6.10.2",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/tns-core-modules-widgets-3.0.1.tgz_1495550342722_0.22495332197286189"
+  },
+  "_npmUser": {
+    "name": "tns-bot",
+    "email": "nativescript@telerik.com"
+  },
+  "_npmVersion": "4.2.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "tns-core-modules-widgets@3.0.1",
+    "scope": null,
+    "escapedName": "tns-core-modules-widgets",
+    "name": "tns-core-modules-widgets",
+    "rawSpec": "3.0.1",
+    "spec": "3.0.1",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/tns-core-modules"
+  ],
+  "_resolved": "https://registry.npmjs.org/tns-core-modules-widgets/-/tns-core-modules-widgets-3.0.1.tgz",
+  "_shasum": "835852cd593141808d2d33255806b9378187cf20",
+  "_shrinkwrap": null,
+  "_spec": "tns-core-modules-widgets@3.0.1",
+  "_where": "/Users/aunger/Development/HelloWorld/node_modules/tns-core-modules",
+  "author": {
+    "name": "NativeScript team"
+  },
+  "bugs": {
+    "url": "https://github.com/NativeScript/android-widgets/issues"
+  },
+  "dependencies": {},
+  "description": "Native widgets used in the NativeScript framework.",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "835852cd593141808d2d33255806b9378187cf20",
+    "tarball": "https://registry.npmjs.org/tns-core-modules-widgets/-/tns-core-modules-widgets-3.0.1.tgz"
+  },
+  "homepage": "https://github.com/NativeScript/android-widgets#readme",
+  "license": "Apache-2.0",
+  "maintainers": [
+    {
+      "name": "hdeshev",
+      "email": "hristo@deshev.com"
+    },
+    {
+      "name": "hhristov",
+      "email": "hristo.hristov@outlook.com"
+    },
+    {
+      "name": "panayot.cankov",
+      "email": "panayot.cankov@telerik.com"
+    },
+    {
+      "name": "tns-bot",
+      "email": "nativescript@telerik.com"
+    },
+    {
+      "name": "vakrilov",
+      "email": "alexander.vakrilov@gmail.com"
+    },
+    {
+      "name": "vchimev",
+      "email": "Vasil.Chimev@telerik.com"
+    }
+  ],
+  "name": "tns-core-modules-widgets",
+  "nativescript": {
+    "platforms": {
+      "ios": "2.0.0",
+      "android": "2.0.0"
+    }
+  },
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NativeScript/android-widgets.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "3.0.1"
+}

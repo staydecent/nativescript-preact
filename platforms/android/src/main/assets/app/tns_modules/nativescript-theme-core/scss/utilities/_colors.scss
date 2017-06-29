@@ -1,0 +1,28 @@
+// sass-lint:disable-all
+// Color classes
+$colors:  ('white', $white),
+          ('black', $black),
+          ('aqua', $aqua),
+          ('blue', $blue),
+          ('charcoal', $charcoal),
+          ('brown', $brown),
+          ('forest', $forest),
+          ('grey', $grey),
+          ('grey-light', $grey-background),
+          ('grey-dark', $grey-dark),
+          ('purple', $purple),
+          ('lemon', $lemon),
+          ('lime', $lime),
+          ('orange', $orange),
+          ('ruby', $ruby),
+          ('sky', $sky);
+
+/**
+ * Color classes
+ * The following creates this pattern:
+ * .c-grey{color:#e0e0e0}.c-bg-grey{background-color:#e0e0e0}
+**/
+@each $name, $color in $colors {
+  .c-#{$name} { color: $color; }
+  .c-bg-#{$name} { background-color: $color; }
+}

@@ -1,0 +1,278 @@
+/*
+*	The android static binding generator will generate bindings for the Javascript code you specify.
+*/
+
+import groovy.json.JsonSlurper
+import groovy.io.FileType
+
+def isWinOs = System.properties['os.name'].toLowerCase().contains('windows')
+
+def astParserDir = "$projectDir/parser"
+def interfaceNamesFileP = "$projectDir/interfaces-names.txt"
+def bindingsFileP = "$projectDir/bindings.txt"
+def cachedJarsFilePath = "$projectDir/cached.txt"
+def jsParserP = "$projectDir/parser/js_parser.js"
+def jsFilesParametersP = "$projectDir/jsFilesParameters.txt"
+
+
+
+//def absoluteOutDir = new File("./outDir")//project.outDir
+
+def absoluteOutDir;
+if (project.hasProperty("outDir")) {
+	absoluteOutDir = project.outDir;
+	
+	if (!absoluteOutDir.exists()) {
+		absoluteOutDir.mkdirs()
+	}
+}
+
+
+// def absoluteJsCodeDir = new File("./jsCodeDir").getAbsolutePath()//project.jsCodeDir
+def absoluteJsCodeDir;
+def jsCodeAbsolutePath;
+if (!project.hasProperty("test")) {
+	absoluteJsCodeDir = project.jsCodeDir
+	jsCodeAbsolutePath = absoluteJsCodeDir.getAbsolutePath()
+}
+
+def utf8 = java.nio.charset.StandardCharsets.UTF_8
+def current = ""
+
+def shouldRun = true
+def rootTraversed = false;
+def inputJsFiles = new LinkedList <String> ();
+
+// depends on passed jars and generated interface-names
+task generateInterfaceNamesList() {
+
+	doFirst {
+		if(!project.hasProperty("test")) {
+			current = project.jarFiles
+			def cache = new File(cachedJarsFilePath)
+			
+			if (cache.exists()) {
+				def contents = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(cachedJarsFilePath)), utf8).trim()
+				shouldRun = !contents.equals(current.toString())
+			}
+
+			if (shouldRun) {
+				javaexec {
+					main "-jar"
+
+					def jarsAsStr = current.toString();
+					def jarsArr = jarsAsStr.replaceAll(/[\[\]]/, "").split(", ")
+
+					def str = new LinkedList <String> ();
+					str.add("interfacenamegenerator.jar")
+					str.addAll(jarsArr)
+
+					args str.toArray()
+				}
+				java.nio.file.Files.write(java.nio.file.Paths.get(cachedJarsFilePath), [current.toString()], utf8)
+			}
+		}
+	}
+}
+
+def traverseDirectory
+
+traverseDirectory = { dir, traverseExplicitly ->
+
+	def currentDir = new File(dir)
+	def pJsonFile = false;
+
+	if (!traverseExplicitly) {
+		if (rootTraversed || !dir.equals(jsCodeAbsolutePath)) {
+			currentDir.eachFile(FileType.FILES) { File f ->
+				if (f.getName().equals("package.json")) {
+					pJsonFile = true;
+					return true; //break
+				}
+			}
+
+		if (pJsonFile) {
+			def jsonFile = new File(dir, "package.json");
+			def pjson = new JsonSlurper().parseText(jsonFile.text)
+
+			if (pjson.nativescript == null) {
+				return;
+			} else {
+				if (pjson.nativescript['recursive-static-bindings']) {
+					// println "Folder will be traversed completely: " + dir
+					traverseExplicitly = true;
+				}
+			}
+		}
+	} else {
+			rootTraversed = true;
+		}
+
+	}
+
+	currentDir.eachFile(FileType.FILES) { File f ->
+		def file = f.getAbsolutePath();
+		if (file.substring(file.length() - 3, file.length()).equals(".js")) {
+			// println "Visiting JavaScript file: " + f.getName()
+			inputJsFiles.add(f.getAbsolutePath())
+		}
+	}
+
+	currentDir.eachFile FileType.DIRECTORIES, { d ->
+		traverseDirectory(d.getAbsolutePath(), traverseExplicitly)
+	}
+}
+
+task traverseJsFilesArgs << { //(jsCodeDir, bindingsFilePath, interfaceNamesFilePath, jsParserPath, jsFilesParameter) {
+	jsCodeAbsolutePath = jsCodeDir;
+	inputJsFiles = new LinkedList<String>();
+	traverseDirectory(jsCodeDir, false);
+
+	new File(jsFilesParameter).withWriter { out ->
+		inputJsFiles.each {out.println it}
+	}
+
+	def list = new ArrayList<String>();
+	list.add("node")
+	list.add(jsParserPath)
+	list.add(jsCodeDir)
+	list.add(bindingsFilePath)
+	list.add(interfaceNamesFilePath)
+	list.add(jsFilesParameter)
+
+	def proc = list.execute()
+	proc.in.eachLine { line -> println line }
+	proc.out.close()
+	proc.waitFor()
+
+	if (proc.exitValue()) {
+		println "gave the following error: "
+		println "[ERROR] ${proc.getErrorStream()}"
+	}
+}
+
+// runs the ast parser only with changed js files
+task runAstParser(type: RunAstParserTask) {
+	outputFiles = files(bindingsFileP)
+    inputFiles = files(inputJsFiles)
+
+	//ast parser configuration
+	jsParserPath = jsParserP
+	jsCodeDir = jsCodeAbsolutePath
+	bindingsFilePath = bindingsFileP
+	interfaceNamesFilePath = interfaceNamesFileP
+	jsFilesParametersPath = jsFilesParametersP
+
+}
+
+// traverses the javascript code input directory
+// 1. traverses all root directory files
+// 2. all subdirectories that do not have a package.json containing a "nativescript" key are skipped
+task traverseJsFiles () {
+	doFirst {
+		// invalidate previously generated bindings.txt file
+		// todo: remove when removing previously generated bindings is implemented
+		new File(bindingsFileP).delete()
+		traverseDirectory(jsCodeAbsolutePath, false)
+	}
+}
+
+// custom incremental task that runs the ast parser
+class RunAstParserTask extends DefaultTask {
+	@InputFiles
+	def FileCollection inputFiles
+
+	@OutputFiles
+	def FileCollection outputFiles
+
+	@Input
+	def jsParserPath
+
+	@Input
+	def jsCodeDir
+
+	@Input
+	def bindingsFilePath
+
+	@Input
+	def interfaceNamesFilePath
+
+	@Input
+	jsFilesParametersPath
+
+	@TaskAction
+	void execute(IncrementalTaskInputs inputs) {
+		println inputs.incremental ? "Running incremental build" : "Running full build"
+
+		def runCommand = { strList ->
+			assert ( strList instanceof String || ( strList instanceof List && strList.each{ it instanceof String } ))
+			def proc = strList.execute()
+			proc.in.eachLine { line -> println line }
+			proc.out.close()
+			proc.waitFor()
+
+			if (proc.exitValue()) {
+				println "gave the following error: "
+				println "[ERROR] ${proc.getErrorStream()}"
+			}
+			// assert !proc.exitValue()
+		}
+
+		def jsDependencies = new ArrayList<String>();
+		inputs.outOfDate { change ->
+			jsDependencies.add(change.getFile().getAbsolutePath())
+			// println change.getFile();
+		}
+		new File(jsFilesParametersPath).withWriter { out ->
+			jsDependencies.each {out.println it}
+		}
+
+		def list = new ArrayList<String>();
+		list.add("node")
+		list.add(jsParserPath)
+		list.add(jsCodeDir)
+		list.add(bindingsFilePath)
+		list.add(interfaceNamesFilePath)
+		list.add(jsFilesParametersPath)
+
+		runCommand(list)
+
+		// inputs.removed { change ->
+			// implement later (pass information to dex generator)
+		// }
+	}
+}
+
+// run the static binding generator
+task generateBindings() {
+
+	def bindingsFile = new File(bindingsFileP);
+	outputs.dir(absoluteOutDir)
+	inputs.dir (bindingsFile)
+
+	doFirst {
+		javaexec {
+			main "-jar"
+
+			def str = new LinkedList <String> ();
+			str.add("staticbindinggenerator.jar")
+			str.add(bindingsFileP)
+			str.add(absoluteOutDir)
+
+			def jarsAsStr = current.toString();
+			def jarsArr = jarsAsStr.replaceAll(/[\[\]]/, "").split(", ")
+			str.addAll(jarsArr)
+
+			args str.toArray()
+		}
+	}
+}
+
+traverseJsFiles.dependsOn(generateInterfaceNamesList)
+runAstParser.dependsOn(traverseJsFiles)
+generateBindings.dependsOn(runAstParser)
+
+///////// CUSTOM CLEAN ////////////
+task clean(type: Delete) {
+	delete files(["$projectDir/bindings.txt", "$projectDir/cached.txt", "$projectDir/interfaces-names.txt", "$projectDir/jsFilesParameters.txt"])
+}
