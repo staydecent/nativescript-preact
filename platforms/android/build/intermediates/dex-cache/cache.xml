@@ -12,21 +12,21 @@
     </item>
     <item
         is-multidex="false"
-        jar="/Users/aunger/Development/HelloWorld/platforms/android/build/intermediates/exploded-aar/com.android.support/design/23.4.0/jars/classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="5326d9a850d491714fef8cbfaa9ea3416f0bf0d2">
-        <dex dex="/Users/aunger/Development/HelloWorld/platforms/android/build/intermediates/pre-dexed/F0/debug/com.android.support-design-23.4.0_1e4020cf402f83b72546393860a105dbad4fe20b.jar" />
-    </item>
-    <item
-        is-multidex="false"
         jar="/Users/aunger/Development/HelloWorld/platforms/android/build/intermediates/exploded-aar/com.android.support/support-vector-drawable/23.4.0/jars/classes.jar"
         jumboMode="false"
         optimize="true"
         revision="23.0.1"
         sha1="c2c594cace5d83a3227b2b6e658ecbfd586d3ed9">
         <dex dex="/Users/aunger/Development/HelloWorld/platforms/android/build/intermediates/pre-dexed/F0/debug/com.android.support-support-vector-drawable-23.4.0_62590f6bbe78d4e24c8bdbb5b4d83d060e671bb5.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/aunger/Development/HelloWorld/platforms/android/build/intermediates/exploded-aar/com.android.support/design/23.4.0/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.1"
+        sha1="5326d9a850d491714fef8cbfaa9ea3416f0bf0d2">
+        <dex dex="/Users/aunger/Development/HelloWorld/platforms/android/build/intermediates/pre-dexed/F0/debug/com.android.support-design-23.4.0_1e4020cf402f83b72546393860a105dbad4fe20b.jar" />
     </item>
     <item
         is-multidex="false"

@@ -1,6 +1,4 @@
 /Users/aunger/Development/HelloWorld/platforms/android/src/main/assets/app/app.js
-/Users/aunger/Development/HelloWorld/platforms/android/src/main/assets/app/main-page.js
-/Users/aunger/Development/HelloWorld/platforms/android/src/main/assets/app/test-page.js
 /Users/aunger/Development/HelloWorld/platforms/android/src/main/assets/app/tns_modules/tns-core-modules/bundle-entry-points.js
 /Users/aunger/Development/HelloWorld/platforms/android/src/main/assets/app/tns_modules/tns-core-modules/application/application-common.js
 /Users/aunger/Development/HelloWorld/platforms/android/src/main/assets/app/tns_modules/tns-core-modules/application/application.js

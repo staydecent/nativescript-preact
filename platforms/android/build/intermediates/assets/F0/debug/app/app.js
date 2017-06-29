@@ -1,9 +1,20 @@
+require('undom/register')
+
 var Preact = require('preact')
-var createComponent = require('preact-classless-component')
+var classless = require('classless-component')
 var pagesModule = require('tns-core-modules/ui/page')
 var applicationModule = require('application')
 
 var h = Preact.h
+var comp = classless.compose(Preact.Component, h)
+
+var Demo = comp({
+  render: function () {
+    return h('Label', {text: 'Hello, world!'})
+  }
+})
+
+Preact.render(h(Demo), document.body)
 
 var wrapper = function (Component) {
   var vnode = Component()
@@ -19,11 +30,9 @@ var wrapper = function (Component) {
   return widget
 }
 
-var Label = createComponent({
-  render: function () {
-    return h('Label', {text: 'Hello, world!'})
-  }
-})
+var Label = function () {
+  return h('Label', {text: 'Hello, world!'})
+}
 
 applicationModule.start({
   create: function () {

@@ -1,8 +1,26 @@
+var undom = require('undom')
+
 var Preact = require('preact')
+var classless = require('classless-component')
 var pagesModule = require('tns-core-modules/ui/page')
 var applicationModule = require('application')
 
+var document = undom()
+global.document = document
+global.document.createElement = document.createElement
+
 var h = Preact.h
+var comp = classless.compose(Preact.Component, h)
+
+var Demo = comp({
+  render: function () {
+    return h('Label', {text: 'Hello, world!'})
+  }
+})
+
+Preact.render(h(Demo), document.body)
+
+console.log('body', Object.keys(document.body))
 
 var wrapper = function (Component) {
   var vnode = Component()
