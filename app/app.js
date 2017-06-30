@@ -33,18 +33,27 @@ var Demo = comp({
     console.log('componentDidMount', this)
   },
   render: function () {
-    return h('Page', {loaded: this.onLoaded}, [h(Child)])
+    return h('Page', {loaded: this.onLoaded}, [
+      h(Child),
+      h('TextView', {text: 'This is some text!'})
+    ])
   }
 })
 
+var modMap = {
+  textview: 'text-view'
+}
+
 var classMap = {
   page: 'Page',
-  label: 'Label'
+  label: 'Label',
+  textview: 'TextView'
 }
 
 var wrapper = function (vnode) {
   console.log('wrapper', JSON.stringify(vnode))
-  var module = require('tns-core-modules/ui/' + vnode.nodeName)
+  var modName = modMap[vnode.nodeName] || vnode.nodeName
+  var module = require('tns-core-modules/ui/' + modName)
   var className = classMap[vnode.nodeName]
   var widget = new module[className]()
   var attrs = vnode.attributes
