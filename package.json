@@ -10,6 +10,7 @@
     }
   },
   "dependencies": {
+    "check-arg-types": "^1.1.0",
     "classless-component": "https://github.com/staydecent/classless-component/tarball/master",
     "nativescript-theme-core": "~1.0.4",
     "preact": "^8.1.0",
