@@ -7,6 +7,7 @@ var render = require('./preact-render-to-nativescript')
 
 var h = Preact.h
 var comp = classless.compose(Preact.Component, h)
+var withState = classless.withState
 
 var Child = comp({
   componentDidMount: function () {
@@ -18,22 +19,33 @@ var Child = comp({
   }
 })
 
-var Demo = comp({
-  onLoaded: function () {
-    console.log('onLoaded')
-  },
-  componentDidMount: function () {
-    console.log('componentDidMount', this)
-  },
-  render: function () {
-    return h('Page', {loaded: this.onLoaded}, [
-      h('StackLayout', {orientation: 'vertical'}, [
-        h(Child),
-        h('TextView', {}, 'This is some text!')
+var Demo = comp(
+  withState('orientation', 'setOrientation', 'horizontal'),
+  {
+    onLoaded: function () {
+      console.log('onLoaded')
+    },
+    componentDidMount: function () {
+      var setOrientation = this.state.setOrientation
+      setTimeout(function () {
+        console.log('go vertical')
+        setOrientation('vertical')
+      }, 250)
+    },
+    componentDidUpdate () {
+      console.log('_updateLayout?')
+    },
+    render: function (props) {
+      console.log('Demo', Object.keys(props))
+      return h('Page', {loaded: props.onLoaded}, [
+        h('StackLayout', {orientation: props.orientation}, [
+          h(Child),
+          h('TextView', {}, 'This is some text!')
+        ])
       ])
-    ])
+    }
   }
-})
+)
 
 applicationModule.start({
   create: function () {
