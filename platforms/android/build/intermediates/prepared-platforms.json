@@ -1,7 +1,0 @@
-{
-    "nativescript-theme-core": true,
-    "preact": true,
-    "preact-classless-component": true,
-    "tns-core-modules": true,
-    "tns-core-modules-widgets": true
-}

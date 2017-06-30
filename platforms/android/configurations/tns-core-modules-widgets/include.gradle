@@ -1,8 +1,0 @@
-
-android {
-    productFlavors {
-        "F0" {
-            dimension "tnscoremoduleswidgets"
-        }
-    }
-}
