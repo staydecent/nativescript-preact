@@ -27,8 +27,10 @@ var Demo = comp({
   },
   render: function () {
     return h('Page', {loaded: this.onLoaded}, [
-      h(Child),
-      h('TextView', {}, 'This is some text!')
+      h('StackLayout', {orientation: 'vertical'}, [
+        h(Child),
+        h('TextView', {}, 'This is some text!')
+      ])
     ])
   }
 })
