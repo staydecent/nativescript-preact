@@ -59,7 +59,9 @@ global.document.createElement = (type) => {
 const MutationObserver = document.defaultView.MutationObserver
 const observer = new MutationObserver(function (mutations) {
   mutations.forEach((mutation) => {
-    console.log('mutations', Object.keys(mutation))
+    const {type, addedNodes, target} = mutation
+    if (!target.hasOwnProperty(PREACT_WIDGET_REF)) return
+    console.log('mutations', type, addedNodes && addedNodes[0].nodeName, target.nodeName)
   })
 })
 observer.observe(document.body, {
