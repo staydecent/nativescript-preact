@@ -36,11 +36,11 @@ var Demo = comp(
       console.log('_updateLayout?')
     },
     render: function (props) {
-      console.log('Demo', Object.keys(props))
+      console.log('Demo', props.orientation)
       return h('Page', {loaded: props.onLoaded}, [
         h('StackLayout', {orientation: props.orientation}, [
           h(Child),
-          h('TextView', {}, 'This is some text!')
+          h('TextView', {}, props.orientation)
         ])
       ])
     }

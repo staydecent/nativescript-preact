@@ -1,44 +1,55 @@
-var Preact = require('preact')
-var undom = require('undom')
-var check = require('check-arg-types')
+const Preact = require('preact')
+const undom = require('./undom')
+const check = require('check-arg-types')
 
-var contentViewModule = require('ui/content-view')
-var textBaseModule = require('ui/text-base')
-var layoutBaseModule = require('ui/layouts/layout-base')
+const contentViewModule = require('ui/content-view')
+const textBaseModule = require('ui/text-base')
+const layoutBaseModule = require('ui/layouts/layout-base')
 
-var h = Preact.h
-var toType = check.prototype.toType
+const h = Preact.h
+const toType = check.prototype.toType
 
-var document = undom()
-var createElementCopy = document.createElement
+const document = undom()
 global.document = document
-global.document.createElement = function (tagName, opts) {
-  console.log('createElement', tagName, opts)
-  return createElementCopy(tagName, opts)
-}
+global.document.createElement = document.createElement
 
-var modMap = {
+const references = []
+const MutationObserver = document.defaultView.MutationObserver
+const observer = new MutationObserver(function (mutations) {
+  const vnode = serializeJson(mutations[0].addedNodes[0])
+  console.log('mutations', JSON.stringify(vnode))
+  references.forEach((ref) => {
+    const name = ref[0].nodeName
+    if (name === vnode.nodeName) {
+      console.log('ref', name, ref[1])
+      ref[1]._setupUI()
+    }
+  })
+})
+observer.observe(document.body)
+
+const modMap = {
   textview: 'text-view',
   stacklayout: 'layouts/stack-layout'
 }
 
-var classMap = {
+const classMap = {
   page: 'Page',
   label: 'Label',
   textview: 'TextView',
   stacklayout: 'StackLayout'
 }
 
-module.exports = function (Component) {
+module.exports = function render (Component) {
   Preact.render(h(Component), document.body)
-  var tree = serializeJson(document.body)
+  const tree = serializeJson(document.body)
   return wrapper(tree.children[0])
 }
 
 function serializeJson (el) {
   if (el.nodeType === 3) return el.nodeValue
-  var attributes = {}
-  var a = el.attributes
+  const attributes = {}
+  const a = el.attributes
   if (el.className) attributes.class = el.className
   for (let i = 0; i < a.length; i++) attributes[a[i].name] = a[i].value
   return {
@@ -51,19 +62,19 @@ function serializeJson (el) {
 function wrapper (vnode) {
   console.log('wrapper', JSON.stringify(vnode))
 
-  var type = toType(vnode)
-  var widget
+  const type = toType(vnode)
+  let widget
 
   if (type === 'object') {
-    var modName = modMap[vnode.nodeName] || vnode.nodeName
-    var module = require('tns-core-modules/ui/' + modName)
-    var className = classMap[vnode.nodeName]
+    const modName = modMap[vnode.nodeName] || vnode.nodeName
+    const module = require('tns-core-modules/ui/' + modName)
+    const className = classMap[vnode.nodeName]
     widget = new module[className]()
-    var attrs = vnode.attributes
-    var attrKeys = Object.keys(attrs)
-    for (var x = 0; x < attrKeys.length; x++) {
-      var k = attrKeys[x]
-      var v = attrs[k]
+    const attrs = vnode.attributes
+    const attrKeys = Object.keys(attrs)
+    for (let x = 0; x < attrKeys.length; x++) {
+      const k = attrKeys[x]
+      const v = attrs[k]
       widget[k] = v
     }
     vnode.children = vnode.children.map(function (child) {
@@ -85,11 +96,12 @@ function wrapper (vnode) {
         widget.text = vnode.children[0]
       }
       if (widget instanceof layoutBaseModule.LayoutBase) {
-        for (var y = 0; y < vnode.children.length; y++) {
+        for (let y = 0; y < vnode.children.length; y++) {
           widget.addChild(vnode.children[y])
         }
       }
     }
+    references.push([vnode, widget])
   } else if (type === 'string') {
     widget = vnode
   }
