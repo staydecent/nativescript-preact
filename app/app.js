@@ -9,15 +9,22 @@ var h = Preact.h
 var comp = classless.compose(Preact.Component, h)
 var withState = classless.withState
 
-var Child = comp({
-  componentDidMount: function () {
-    console.log('Child!')
-  },
-  render: function () {
-    console.log('render Child')
-    return h('Label', {}, 'This is a label!')
+var Child = comp(
+  withState('items', 'setItems', [1, 2, 3]),
+  {
+    componentDidMount: function () {
+      var setItems = this.state.setItems
+      setTimeout(function () {
+        setItems([1, 2, 3, 4, 5])
+      }, 550)
+    },
+    render: function (props) {
+      console.log('setItems', props.items)
+      return h('StackLayout', null, props.items.map(
+        (el) => h('TextView', {key: 'key-' + el}, el)))
+    }
   }
-})
+)
 
 var Demo = comp(
   withState('orientation', 'setOrientation', 'horizontal'),
