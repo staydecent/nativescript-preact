@@ -35,18 +35,14 @@ var Demo = comp(
     componentDidMount: function () {
       var setOrientation = this.state.setOrientation
       setTimeout(function () {
-        console.log('go vertical')
         setOrientation('vertical')
       }, 250)
-    },
-    componentDidUpdate () {
-      console.log('_updateLayout?')
     },
     render: function (props) {
       console.log('Demo', props.orientation)
       return h('Page', {loaded: props.onLoaded}, [
         h('StackLayout', {orientation: props.orientation}, [
-          h(Child),
+          // h(Child),
           h('TextView', {}, props.orientation)
         ])
       ])

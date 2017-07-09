@@ -59,9 +59,22 @@ global.document.createElement = (type) => {
 const MutationObserver = document.defaultView.MutationObserver
 const observer = new MutationObserver(function (mutations) {
   mutations.forEach((mutation) => {
-    const {type, addedNodes, target} = mutation
+    const {type, addedNodes, removedNodes, target} = mutation
     if (!target.hasOwnProperty(PREACT_WIDGET_REF)) return
-    console.log('mutations', type, addedNodes && addedNodes[0].nodeName, target.nodeName)
+    const widget = target[PREACT_WIDGET_REF]
+
+    console.log('mutations', type, Object.keys(mutation), target.nodeName)
+
+    if (addedNodes && addedNodes.length) {
+      console.log('addedNodes', addedNodes.length, addedNodes[0].nodeName, widget)
+      if (widget instanceof textBaseModule.TextView) {
+        console.log('??', widget.text)
+      }
+    }
+
+    if (removedNodes && removedNodes.length) {
+      console.log('removedNodes', removedNodes[0].nodeName)
+    }
   })
 })
 observer.observe(document.body, {
