@@ -32,18 +32,17 @@ var Demo = comp(
     onLoaded: function () {
       console.log('onLoaded')
     },
-    componentDidMount: function () {
-      var setOrientation = this.state.setOrientation
-      setTimeout(function () {
-        setOrientation('vertical')
-      }, 250)
-    },
+    // componentDidMount: function () {
+    //   var setOrientation = this.state.setOrientation
+    //   setTimeout(function () {
+    //     setOrientation('vertical')
+    //   }, 250)
+    // },
     render: function (props) {
       console.log('Demo', props.orientation)
-      return h('Page', {loaded: props.onLoaded}, [
+      return h('Page', null, [
         h('StackLayout', {orientation: props.orientation}, [
-          // h(Child),
-          h('TextView', {}, props.orientation)
+          h('TextView', null, props.orientation)
         ])
       ])
     }

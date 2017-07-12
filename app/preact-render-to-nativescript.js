@@ -5,6 +5,7 @@ const check = require('check-arg-types')
 const contentViewModule = require('ui/content-view')
 const textBaseModule = require('ui/text-base')
 const layoutBaseModule = require('ui/layouts/layout-base')
+const pageModule = require('ui/page')
 
 const h = Preact.h
 const toType = check.prototype.toType
@@ -43,6 +44,7 @@ const attachWidget = (el) => {
     widget[k] = v
   }
   el[PREACT_WIDGET_REF] = widget
+  console.log('widget', className, widget, Object.keys(el))
   return el
 }
 
@@ -55,25 +57,40 @@ global.document.createElement = (type) => {
   return attachWidget(el)
 }
 
+const build = (parentNode) => {
+  const widget = parentNode[PREACT_WIDGET_REF]
+
+  // Build Page
+  if (widget instanceof pageModule.Page) {
+    const childWidget = build(parentNode.childNodes[0])
+    widget.content = childWidget
+  }
+
+  // Build Layouts
+  if (widget instanceof layoutBaseModule.LayoutBase) {
+    for (let x = 0; x < parentNode.childNodes.length; x++) {
+      const childWidget = build(parentNode.childNodes[x])
+      widget.addChild(childWidget)
+    }
+  }
+
+  // Build Text
+  if (widget instanceof textBaseModule.TextBase) {
+    widget.text = parentNode.childNodes[0].nodeValue
+  }
+
+  return widget
+}
+
 // Observe (un)DOM changes
 const MutationObserver = document.defaultView.MutationObserver
 const observer = new MutationObserver(function (mutations) {
   mutations.forEach((mutation) => {
-    const {type, addedNodes, removedNodes, target} = mutation
-    if (!target.hasOwnProperty(PREACT_WIDGET_REF)) return
-    const widget = target[PREACT_WIDGET_REF]
-
-    console.log('mutations', type, Object.keys(mutation), target.nodeName)
+    const {addedNodes} = mutation
+    // console.log('mutation', Object.keys(addedNodes[0]))
 
     if (addedNodes && addedNodes.length) {
-      console.log('addedNodes', addedNodes.length, addedNodes[0].nodeName, widget)
-      if (widget instanceof textBaseModule.TextView) {
-        console.log('??', widget.text)
-      }
-    }
-
-    if (removedNodes && removedNodes.length) {
-      console.log('removedNodes', removedNodes[0].nodeName)
+      build(addedNodes[0])
     }
   })
 })
