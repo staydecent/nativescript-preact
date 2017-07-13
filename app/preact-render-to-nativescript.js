@@ -62,6 +62,7 @@ const build = (parentNode) => {
 
   // Build Page
   if (widget instanceof pageModule.Page) {
+    console.log('build Page')
     const childWidget = build(parentNode.childNodes[0])
     widget.content = childWidget
   }
@@ -76,21 +77,31 @@ const build = (parentNode) => {
 
   // Build Text
   if (widget instanceof textBaseModule.TextBase) {
+    console.log('TextBase', widget, parentNode.nodeValue, parentNode.childNodes[0].nodeValue)
     widget.text = parentNode.childNodes[0].nodeValue
   }
 
   return widget
 }
 
+const destroy = (parentNode) => {
+}
+
 // Observe (un)DOM changes
 const MutationObserver = document.defaultView.MutationObserver
 const observer = new MutationObserver(function (mutations) {
   mutations.forEach((mutation) => {
-    const {addedNodes} = mutation
-    // console.log('mutation', Object.keys(addedNodes[0]))
+    const {addedNodes, removedNodes} = mutation
+    console.log('mutation', Object.keys(mutation))
 
     if (addedNodes && addedNodes.length) {
+      console.log('addedNodes', addedNodes.length)
       build(addedNodes[0])
+    }
+
+    if (removedNodes && removedNodes.length) {
+      // console.log('removedNodes', removedNodes.length)
+      destroy(removedNodes[0])
     }
   })
 })
