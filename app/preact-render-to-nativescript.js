@@ -15,6 +15,7 @@ const PREACT_WIDGET_REF = '__preact_widget_ref__'
 // nodeName => module mapping
 const modMap = {
   TEXTVIEW: 'text-view',
+  TEXTFIELD: 'text-field',
   STACKLAYOUT: 'layouts/stack-layout'
 }
 
@@ -23,6 +24,7 @@ const classMap = {
   PAGE: 'Page',
   LABEL: 'Label',
   TEXTVIEW: 'TextView',
+  TEXTFIELD: 'TextField',
   STACKLAYOUT: 'StackLayout'
 }
 
@@ -57,8 +59,14 @@ global.document.createElement = (type) => {
   return attachWidget(el)
 }
 
-const build = (parentNode) => {
+const build = (parentNode, target) => {
   const widget = parentNode[PREACT_WIDGET_REF]
+
+  // textContent
+  if (!widget && parentNode.nodeType === 3 && target) {
+    console.log('textContent', Object.keys(target), target.childNodes[0].nodeValue)
+    build(target)
+  }
 
   // Build Page
   if (widget instanceof pageModule.Page) {
@@ -69,6 +77,7 @@ const build = (parentNode) => {
 
   // Build Layouts
   if (widget instanceof layoutBaseModule.LayoutBase) {
+    console.log('build Layout')
     for (let x = 0; x < parentNode.childNodes.length; x++) {
       const childWidget = build(parentNode.childNodes[x])
       widget.addChild(childWidget)
@@ -91,12 +100,11 @@ const destroy = (parentNode) => {
 const MutationObserver = document.defaultView.MutationObserver
 const observer = new MutationObserver(function (mutations) {
   mutations.forEach((mutation) => {
-    const {addedNodes, removedNodes} = mutation
+    const {addedNodes, removedNodes, target} = mutation
     console.log('mutation', Object.keys(mutation))
 
     if (addedNodes && addedNodes.length) {
-      console.log('addedNodes', addedNodes.length)
-      build(addedNodes[0])
+      build(addedNodes[0], target)
     }
 
     if (removedNodes && removedNodes.length) {

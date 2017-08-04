@@ -9,41 +9,23 @@ var h = Preact.h
 var comp = classless.compose(Preact.Component, h)
 var withState = classless.withState
 
-var Child = comp(
-  withState('items', 'setItems', [1, 2, 3]),
-  {
-    componentDidMount: function () {
-      var setItems = this.state.setItems
-      setTimeout(function () {
-        setItems([1, 2, 3, 4, 5])
-      }, 550)
-    },
-    render: function (props) {
-      console.log('setItems', props.items)
-      return h('StackLayout', null, props.items.map(
-        (el) => h('TextView', {key: 'key-' + el}, el)))
-    }
-  }
-)
-
 var Demo = comp(
-  withState('orientation', 'setOrientation', 'horizontal'),
+  withState('input', 'setInput', 'Finish NativeScript Preact example!'),
   {
     onLoaded: function () {
       console.log('onLoaded')
     },
     componentDidMount: function () {
-      var setOrientation = this.state.setOrientation
+      var setInput = this.state.setInput
       setTimeout(function () {
-        setOrientation('vertical')
-      }, 250)
+        setInput('vertical')
+      }, 2500)
     },
     render: function (props) {
-      console.log('Demo', props.orientation)
+      console.log('Demo', props.input)
       return h('Page', null, [
         h('StackLayout', null, [
-          // h(Child),
-          h('TextView', {}, props.orientation)
+          h('TextField', {}, props.input)
         ])
       ])
     }
