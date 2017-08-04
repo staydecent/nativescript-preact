@@ -4,6 +4,7 @@ const check = require('check-arg-types')
 
 const contentViewModule = require('ui/content-view')
 const textBaseModule = require('ui/text-base')
+const editableTextBaseModule = require('ui/editable-text-base')
 const layoutBaseModule = require('ui/layouts/layout-base')
 const pageModule = require('ui/page')
 
@@ -59,6 +60,14 @@ global.document.createElement = (type) => {
   return attachWidget(el)
 }
 
+const getValue = (attributes) => {
+  for (let x = 0; x < attributes.length; x++) {
+    if (attributes[x].name && attributes[x].name === 'value') {
+      return attributes[x].value
+    }
+  }
+}
+
 const build = (parentNode, target) => {
   const widget = parentNode[PREACT_WIDGET_REF]
 
@@ -86,8 +95,15 @@ const build = (parentNode, target) => {
 
   // Build Text
   if (widget instanceof textBaseModule.TextBase) {
-    console.log('TextBase', widget, parentNode.nodeValue, parentNode.childNodes[0].nodeValue)
-    widget.text = parentNode.childNodes[0].nodeValue
+    const val = getValue(parentNode.attributes) || parentNode.childNodes[0].nodeValue
+    widget.text = val
+    if (parentNode.__handlers && parentNode.__handlers.input) {
+      widget.on('textChange', function (ev) {
+        console.log('textChange', Object.keys(ev))
+        parentNode.__handlers.input[0]({type: 'input'})
+      })
+      // widget.on('textChange', parentNode.__handlers.input[0])
+    }
   }
 
   return widget

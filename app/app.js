@@ -21,11 +21,18 @@ var Demo = comp(
         setInput('vertical')
       }, 2500)
     },
+    handleInput: function (ev) {
+      console.log('handleInput')
+      this.setInput(ev.target.value)
+    },
     render: function (props) {
       console.log('Demo', props.input)
       return h('Page', null, [
         h('StackLayout', null, [
-          h('TextField', {}, props.input)
+          h('TextField', {
+            value: props.input,
+            onInput: props.handleInput
+          })
         ])
       ])
     }
