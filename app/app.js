@@ -22,8 +22,8 @@ var Demo = comp(
       }, 2500)
     },
     handleInput: function (ev) {
-      console.log('handleInput')
-      this.setInput(ev.target.value)
+      console.log('handleInput', Object.keys(ev), ev.value)
+      this.setInput(ev.value)
     },
     render: function (props) {
       console.log('Demo', props.input)

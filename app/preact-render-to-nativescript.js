@@ -99,10 +99,9 @@ const build = (parentNode, target) => {
     widget.text = val
     if (parentNode.__handlers && parentNode.__handlers.input) {
       widget.on('textChange', function (ev) {
-        console.log('textChange', Object.keys(ev))
-        parentNode.__handlers.input[0]({type: 'input'})
+        ev.type = 'input'
+        parentNode.__handlers.input[0](ev)
       })
-      // widget.on('textChange', parentNode.__handlers.input[0])
     }
   }
 

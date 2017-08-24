@@ -196,7 +196,7 @@
       };
 
       Element.prototype.addEventListener = function addEventListener (type, handler) {
-        (this.__handlers[toLower(type)] || (this.__handlers[toLower(type)] = [])).push(handler);
+        (this.__handlers[toLower(type)] || (this.__handlers[toLower(type)] = [])).push(handler.bind(this));
       };
       Element.prototype.removeEventListener = function removeEventListener (type, handler) {
         splice(this.__handlers[toLower(type)], handler, 0, true);
