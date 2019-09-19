@@ -1,12 +1,27 @@
 const Preact = require('preact')
-const undom = require('./undom')
 const check = require('check-arg-types')
 
-const contentViewModule = require('ui/content-view')
-const textBaseModule = require('ui/text-base')
-const editableTextBaseModule = require('ui/editable-text-base')
-const layoutBaseModule = require('ui/layouts/layout-base')
-const pageModule = require('ui/page')
+const contentView = require('tns-core-modules/ui/content-view')
+const label = require('tns-core-modules/ui/label')
+const textBase = require('tns-core-modules/ui/text-base')
+const editableTextBase = require('tns-core-modules/ui/editable-text-base')
+const textField = require('tns-core-modules/ui/text-field')
+const layoutBase = require('tns-core-modules/ui/layouts/layout-base')
+const stackLayout = require('tns-core-modules/ui/layouts/stack-layout')
+const page = require('tns-core-modules/ui/page')
+
+const undom = require('./undom')
+
+const modules = {
+  contentView,
+  label,
+  textBase,
+  editableTextBase,
+  textField,
+  layoutBase,
+  stackLayout,
+  page
+}
 
 const h = Preact.h
 const toType = check.prototype.toType
@@ -15,9 +30,9 @@ const PREACT_WIDGET_REF = '__preact_widget_ref__'
 
 // nodeName => module mapping
 const modMap = {
-  TEXTVIEW: 'text-view',
-  TEXTFIELD: 'text-field',
-  STACKLAYOUT: 'layouts/stack-layout'
+  TEXTVIEW: 'textView',
+  TEXTFIELD: 'textField',
+  STACKLAYOUT: 'stackLayout'
 }
 
 // nodeName => class mapping
@@ -35,9 +50,12 @@ const attachWidget = (el) => {
   if (type === 'string') {
     return el
   }
+
   const modName = modMap[el.nodeName] || el.nodeName.toLowerCase()
-  const module = require('tns-core-modules/ui/' + modName)
+  const module = modules[modName]
   const className = classMap[el.nodeName]
+  !module && console.log({ modName, className })
+
   const widget = new module[className]()
   const attrs = el.attributes
   const attrKeys = Object.keys(attrs)
@@ -47,7 +65,6 @@ const attachWidget = (el) => {
     widget[k] = v
   }
   el[PREACT_WIDGET_REF] = widget
-  console.log('widget', className, widget, Object.keys(el))
   return el
 }
 
@@ -73,19 +90,19 @@ const build = (parentNode, target) => {
 
   // textContent
   if (!widget && parentNode.nodeType === 3 && target) {
-    console.log('textContent', Object.keys(target), target.childNodes[0].nodeValue)
+    console.log('textContent', target.nodeName, target.childNodes[0].nodeValue)
     build(target)
   }
 
   // Build Page
-  if (widget instanceof pageModule.Page) {
+  if (widget instanceof page.Page) {
     console.log('build Page')
     const childWidget = build(parentNode.childNodes[0])
     widget.content = childWidget
   }
 
   // Build Layouts
-  if (widget instanceof layoutBaseModule.LayoutBase) {
+  if (widget instanceof layoutBase.LayoutBase) {
     console.log('build Layout')
     for (let x = 0; x < parentNode.childNodes.length; x++) {
       const childWidget = build(parentNode.childNodes[x])
@@ -94,10 +111,11 @@ const build = (parentNode, target) => {
   }
 
   // Build Text
-  if (widget instanceof textBaseModule.TextBase) {
-    const val = getValue(parentNode.attributes) || parentNode.childNodes[0].nodeValue
+  if (widget instanceof textBase.TextBase) {
+    const val = parentNode.getAttribute('value') || parentNode.childNodes[0].nodeValue
     widget.text = val
     if (parentNode.__handlers && parentNode.__handlers.input) {
+      console.log('build TextBase', parentNode.nodeName, { val })
       widget.on('textChange', function (ev) {
         ev.type = 'input'
         parentNode.__handlers.input[0](ev)
@@ -111,23 +129,37 @@ const build = (parentNode, target) => {
 const destroy = (parentNode) => {
 }
 
+const update = (target, attributeName) => {
+  const widget = target[PREACT_WIDGET_REF]
+
+  if (widget instanceof textBase.TextBase) {
+    const nodeName = target.nodeName
+    const newVal = target.getAttribute(attributeName)
+    console.log('update', { nodeName, attributeName, newVal })
+    widget.text = newVal
+  }
+}
+
 // Observe (un)DOM changes
 const MutationObserver = document.defaultView.MutationObserver
 const observer = new MutationObserver(function (mutations) {
   mutations.forEach((mutation) => {
-    const {addedNodes, removedNodes, target} = mutation
-    console.log('mutation', Object.keys(mutation))
+    const {addedNodes, removedNodes, type, target} = mutation
+
+    if (type === 'attributes') {
+      update(target, mutation.attributeName)
+    }
 
     if (addedNodes && addedNodes.length) {
       build(addedNodes[0], target)
     }
 
     if (removedNodes && removedNodes.length) {
-      // console.log('removedNodes', removedNodes.length)
       destroy(removedNodes[0])
     }
   })
 })
+
 observer.observe(document.body, {
   attributes: true,
   characterData: true,  // needed
