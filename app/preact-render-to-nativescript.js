@@ -77,6 +77,7 @@ global.document.createElement = (type) => {
   return attachWidget(el)
 }
 
+// Safely get value or undefined without exception
 const getValue = (attributes) => {
   for (let x = 0; x < attributes.length; x++) {
     if (attributes[x].name && attributes[x].name === 'value') {
@@ -90,8 +91,15 @@ const build = (parentNode, target) => {
 
   // textContent
   if (!widget && parentNode.nodeType === 3 && target) {
-    console.log('textContent', target.nodeName, target.childNodes[0].nodeValue)
+    console.log('textContent', target.nodeName, target.childNodes[0].data)
     build(target)
+  }
+
+  // Label
+  if (widget instanceof label.Label) {
+    console.log('build Label')
+    widget.text = parentNode.childNodes[0].data
+    return widget
   }
 
   // Build Page
@@ -112,10 +120,10 @@ const build = (parentNode, target) => {
 
   // Build Text
   if (widget instanceof textBase.TextBase) {
-    const val = parentNode.getAttribute('value') || parentNode.childNodes[0].nodeValue
+    const val = getValue(parentNode.attributes) || parentNode.value
+    console.log('build TextBase', { val })
     widget.text = val
     if (parentNode.__handlers && parentNode.__handlers.input) {
-      console.log('build TextBase', parentNode.nodeName, { val })
       widget.on('textChange', function (ev) {
         ev.type = 'input'
         parentNode.__handlers.input[0](ev)
@@ -144,7 +152,7 @@ const update = (target, attributeName) => {
 const MutationObserver = document.defaultView.MutationObserver
 const observer = new MutationObserver(function (mutations) {
   mutations.forEach((mutation) => {
-    const {addedNodes, removedNodes, type, target} = mutation
+    const { addedNodes, removedNodes, type, target } = mutation
 
     if (type === 'attributes') {
       update(target, mutation.attributeName)
@@ -162,9 +170,9 @@ const observer = new MutationObserver(function (mutations) {
 
 observer.observe(document.body, {
   attributes: true,
-  characterData: true,  // needed
-  childList: true,      // children, includes text
-  subtree: true         // descendants
+  characterData: true, // needed
+  childList: true, // children, includes text
+  subtree: true // descendants
 })
 
 // preact-render-to-nativescript
