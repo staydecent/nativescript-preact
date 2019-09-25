@@ -1,11 +1,9 @@
-const Preact = require('preact')
+const { Component, h } = require('preact')
 const application = require('tns-core-modules/application')
 
 const render = require('./preact-render-to-nativescript')
 
-const h = Preact.h
-
-class Demo extends Preact.Component {
+class Demo extends Component {
   constructor (props) {
     super(props)
     this.state = {

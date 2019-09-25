@@ -1,4 +1,4 @@
-const Preact = require('preact')
+const { h, render: mount } = require('preact')
 const check = require('check-arg-types')
 
 const contentView = require('tns-core-modules/ui/content-view')
@@ -23,7 +23,6 @@ const modules = {
   page
 }
 
-const h = Preact.h
 const toType = check.prototype.toType
 
 const PREACT_WIDGET_REF = '__preact_widget_ref__'
@@ -78,10 +77,10 @@ global.document.createElement = (type) => {
 }
 
 // Safely get value or undefined without exception
-const getValue = (attributes) => {
+const getValue = (attributes, name = 'value') => {
   for (let x = 0; x < attributes.length; x++) {
-    if (attributes[x].name && attributes[x].name === 'value') {
-      return attributes[x].value
+    if (attributes[x].name && attributes[x].name === name) {
+      return attributes[x][name]
     }
   }
 }
@@ -125,7 +124,7 @@ const build = (parentNode, target) => {
     widget.text = val
     if (parentNode.__handlers && parentNode.__handlers.input) {
       widget.on('textChange', function (ev) {
-        ev.type = 'input'
+        ev.type = 'Input'
         parentNode.__handlers.input[0](ev)
       })
     }
@@ -141,9 +140,7 @@ const update = (target, attributeName) => {
   const widget = target[PREACT_WIDGET_REF]
 
   if (widget instanceof textBase.TextBase) {
-    const nodeName = target.nodeName
-    const newVal = target.getAttribute(attributeName)
-    console.log('update', { nodeName, attributeName, newVal })
+    const newVal = getValue(target.attributes, attributeName)
     widget.text = newVal
   }
 }
@@ -155,6 +152,7 @@ const observer = new MutationObserver(function (mutations) {
     const { addedNodes, removedNodes, type, target } = mutation
 
     if (type === 'attributes') {
+      console.log('mutation#attributes', target.localName, mutation.attributeName)
       update(target, mutation.attributeName)
     }
 
@@ -177,7 +175,7 @@ observer.observe(document.body, {
 
 // preact-render-to-nativescript
 module.exports = function render (Component) {
-  Preact.render(h(Component), document.body)
+  mount(h(Component), document.body)
   // The first child of body is our top-level component; we can just
   // return it's NativeScript counterpart/reference.
   return document.body.childNodes[0][PREACT_WIDGET_REF]

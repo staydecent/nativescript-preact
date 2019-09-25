@@ -12,7 +12,7 @@
   "dependencies": {
     "check-arg-types": "1.1.0",
     "nativescript-theme-core": "1.0.4",
-    "preact": "8.5.2",
+    "preact": "10.0.0-rc.3",
     "tns-core-modules": "6.0.1"
   },
   "devDependencies": {
