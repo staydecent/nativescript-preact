@@ -29,7 +29,7 @@ class Demo extends Component {
     return h('Page', null, [
       h('StackLayout', null, [
         h('TextField', {
-          value: this.state.input,
+          text: this.state.input,
           onInput: this.handleInput
         }),
         h('Label', null, [this.state.input])

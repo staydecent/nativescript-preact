@@ -77,10 +77,10 @@ global.document.createElement = (type) => {
 }
 
 // Safely get value or undefined without exception
-const getValue = (attributes, name = 'value') => {
+const getAttr = (attributes, name = 'value') => {
   for (let x = 0; x < attributes.length; x++) {
     if (attributes[x].name && attributes[x].name === name) {
-      return attributes[x][name]
+      return attributes[x].value
     }
   }
 }
@@ -119,7 +119,7 @@ const build = (parentNode, target) => {
 
   // Build Text
   if (widget instanceof textBase.TextBase) {
-    const val = getValue(parentNode.attributes) || parentNode.value
+    const val = getAttr(parentNode.attributes) || parentNode.value
     console.log('build TextBase', { val })
     widget.text = val
     if (parentNode.__handlers && parentNode.__handlers.input) {
@@ -140,7 +140,8 @@ const update = (target, attributeName) => {
   const widget = target[PREACT_WIDGET_REF]
 
   if (widget instanceof textBase.TextBase) {
-    const newVal = getValue(target.attributes, attributeName)
+    const newVal = getAttr(target.attributes.slice(0), attributeName)
+    console.log('update', target.localName, { newVal })
     widget.text = newVal
   }
 }
