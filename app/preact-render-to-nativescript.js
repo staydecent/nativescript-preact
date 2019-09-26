@@ -1,20 +1,20 @@
 require('./unwindow')
 
-const { Component, h, render: mount } = require('preact')
-const { useState, useEffect } = require('preact/hooks')
+const undom = require('./undom')
 
 const check = require('check-arg-types')
 
-const contentView = require('tns-core-modules/ui/content-view')
-const label = require('tns-core-modules/ui/label')
-const textBase = require('tns-core-modules/ui/text-base')
-const editableTextBase = require('tns-core-modules/ui/editable-text-base')
-const textField = require('tns-core-modules/ui/text-field')
-const layoutBase = require('tns-core-modules/ui/layouts/layout-base')
-const stackLayout = require('tns-core-modules/ui/layouts/stack-layout')
-const page = require('tns-core-modules/ui/page')
+const { Component, h, render: mount } = require('preact')
+const { useState, useEffect } = require('preact/hooks')
 
-const undom = require('./undom')
+const contentView = require('tns-core-modules/ui/content-view')
+const editableTextBase = require('tns-core-modules/ui/editable-text-base')
+const label = require('tns-core-modules/ui/label')
+const layoutBase = require('tns-core-modules/ui/layouts/layout-base')
+const page = require('tns-core-modules/ui/page')
+const stackLayout = require('tns-core-modules/ui/layouts/stack-layout')
+const textBase = require('tns-core-modules/ui/text-base')
+const textField = require('tns-core-modules/ui/text-field')
 
 const modules = {
   contentView,
@@ -31,21 +31,82 @@ const toType = check.prototype.toType
 
 const PREACT_WIDGET_REF = '__preact_widget_ref__'
 
-// nodeName => module mapping
+// NativeScript Component Names.
+// Calling them widgets to distinguish from Preact Components.
+const widgets = [
+  'AbsoluteLayout',
+  'ActionBar',
+  'ActionItem',
+  'ActivityIndicator',
+  'Button',
+  'ContainerView',
+  'ContentView',
+  'CustomLayoutView',
+  'DatePicker',
+  'DockLayout',
+  'EditableTextBase',
+  'FlexboxLayout',
+  'FormattedString',
+  'Frame',
+  'GridLayout',
+  'HtmlView',
+  'Image',
+  'Label',
+  'LayoutBase',
+  'ListPicker',
+  'ListView',
+  'NavigationButton',
+  'Observable',
+  'Page',
+  'Placeholder',
+  'Progress',
+  'Repeater',
+  'ScrollView',
+  'SearchBar',
+  'SegmentedBar',
+  'SegmentedBarItem',
+  'Slider',
+  'Span',
+  'StackLayout',
+  'Switch',
+  'TabView',
+  'TabViewItem',
+  'TextBase',
+  'TextField',
+  'TextView',
+  'TimePicker',
+  'View',
+  'ViewBase',
+  'WebView',
+  'WrapLayout'
+]
+
+// nodeName => module
 const modMap = {
   TEXTVIEW: 'textView',
   TEXTFIELD: 'textField',
   STACKLAYOUT: 'stackLayout'
 }
 
-// nodeName => class mapping
-const classMap = {
-  PAGE: 'Page',
-  LABEL: 'Label',
-  TEXTVIEW: 'TextView',
-  TEXTFIELD: 'TextField',
-  STACKLAYOUT: 'StackLayout'
+// nodeName => class
+// Ex. TEXTVIEW => 'TextView'
+const classMap = Object.fromEntries(widgets.map(w => [w.toUpperCase(), w]))
+
+console.log({ classMap })
+
+// Map NativeScript components to createElement calls
+const makeComponent = componentName => {
+  function ComponentWrapper ({ children, ...props }) {
+    return h(componentName, props, children)
+  }
+  ComponentWrapper.displayName = componentName
+  return ComponentWrapper
 }
+let components = {}
+Object.values(classMap).map(componentName => {
+  components[componentName] = makeComponent(componentName)
+})
+console.log(components)
 
 // Create and attach NativeScript UI widget to Element
 const attachWidget = (el) => {
@@ -197,5 +258,6 @@ module.exports = {
   Component,
   h,
   useState,
-  useEffect
+  useEffect,
+  ...components
 }

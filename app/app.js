@@ -2,7 +2,11 @@ const {
   render,
   h,
   useState,
-  useEffect
+  useEffect,
+  Page,
+  StackLayout,
+  TextField,
+  Label
 } = require('./preact-render-to-nativescript')
 
 const application = require('tns-core-modules/application')
@@ -15,15 +19,14 @@ function Demo () {
     setTimeout(() => setInput('Changed!'), 2500)
   }, [])
 
-  return h('Page', null, [
-    h('StackLayout', null, [
-      h('TextField', {
-        text: input,
-        onInput: handleInput
-      }),
-      h('Label', null, [input])
-    ])
-  ])
+  return (
+    <Page>
+      <StackLayout>
+        <TextField text={input} onInput={handleInput} />
+        <Label>{input}</Label>
+      </StackLayout>
+    </Page>
+  )
 }
 
 application.run({
