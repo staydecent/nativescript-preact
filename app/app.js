@@ -26,7 +26,7 @@ function Demo () {
     <Page>
       <StackLayout>
         <TextField text={input} onInput={handleInput} />
-        <Label>{input}</Label>
+        <Label class='my-label'>{input}</Label>
         <Button
           bogusProps='cool'
           style='background-color: pink;'
