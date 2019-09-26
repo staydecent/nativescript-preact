@@ -13,6 +13,7 @@ const label = require('tns-core-modules/ui/label')
 const layoutBase = require('tns-core-modules/ui/layouts/layout-base')
 const page = require('tns-core-modules/ui/page')
 const stackLayout = require('tns-core-modules/ui/layouts/stack-layout')
+const flexboxLayout = require('tns-core-modules/ui/layouts/flexbox-layout')
 const textBase = require('tns-core-modules/ui/text-base')
 const textField = require('tns-core-modules/ui/text-field')
 
@@ -24,6 +25,7 @@ const modules = {
   textField,
   layoutBase,
   stackLayout,
+  flexboxLayout,
   page
 }
 
@@ -82,17 +84,11 @@ const widgets = [
 ]
 
 // nodeName => module
-const modMap = {
-  TEXTVIEW: 'textView',
-  TEXTFIELD: 'textField',
-  STACKLAYOUT: 'stackLayout'
-}
+const modMap = Object.fromEntries(widgets.map(w => [w.toUpperCase(), w[0].toLowerCase() + w.slice(1)]))
 
 // nodeName => class
 // Ex. TEXTVIEW => 'TextView'
 const classMap = Object.fromEntries(widgets.map(w => [w.toUpperCase(), w]))
-
-console.log({ classMap })
 
 // Map NativeScript components to createElement calls
 const makeComponent = componentName => {
@@ -162,8 +158,9 @@ const build = (parentNode, target) => {
   // Label
   if (widget instanceof label.Label) {
     console.log('build Label')
-    widget.text = parentNode.childNodes[0].data
-    return widget
+    widget.text = parentNode.childNodes && parentNode.childNodes.length
+      ? parentNode.childNodes[0].data
+      : getAttr(parentNode.attributes, 'text')
   }
 
   // Build Page
