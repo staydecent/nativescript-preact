@@ -148,9 +148,9 @@ function undom () {
       this.attributes = []
       this.__handlers = {}
       this.style = {}
-      Object.defineProperty(this, 'className', {
-        set: function (val) { this$1.setAttribute('class', val) },
-        get: function () { return this$1.getAttribute('class') }
+      Object.defineProperty(this, 'class', {
+        set: function (val) { this$1.setAttribute('className', val) },
+        get: function () { return this$1.getAttribute('className') }
       })
       Object.defineProperty(this.style, 'cssText', {
         set: function (val) { this$1.setAttribute('style', val) },

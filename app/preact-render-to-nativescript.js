@@ -1,51 +1,166 @@
 require('./unwindow')
 
-const { Component, h, render: mount } = require('preact')
-const { useState, useEffect } = require('preact/hooks')
+const undom = require('./undom')
 
 const check = require('check-arg-types')
 
-const contentView = require('tns-core-modules/ui/content-view')
-const label = require('tns-core-modules/ui/label')
-const textBase = require('tns-core-modules/ui/text-base')
-const editableTextBase = require('tns-core-modules/ui/editable-text-base')
-const textField = require('tns-core-modules/ui/text-field')
-const layoutBase = require('tns-core-modules/ui/layouts/layout-base')
-const stackLayout = require('tns-core-modules/ui/layouts/stack-layout')
+const { Component, h, render: mount } = require('preact')
+const { useState, useEffect } = require('preact/hooks')
+
+// UI Modules
+const animation = require('tns-core-modules/ui/animation')
+const formattedString = require('tns-core-modules/text/formatted-string')
+const frame = require('tns-core-modules/ui/frame')
 const page = require('tns-core-modules/ui/page')
 
-const undom = require('./undom')
+// Layouts
+const absoluteLayout = require('tns-core-modules/ui/layouts/absolute-layout')
+const dockLayout = require('tns-core-modules/ui/layouts/dock-layout')
+const flexboxLayout = require('tns-core-modules/ui/layouts/flexbox-layout')
+const gridLayout = require('tns-core-modules/ui/layouts/grid-layout')
+const layoutBase = require('tns-core-modules/ui/layouts/layout-base')
+const stackLayout = require('tns-core-modules/ui/layouts/stack-layout')
+const wrapLayout = require('tns-core-modules/ui/layouts/wrap-layout')
+
+// Widgets
+
+const activityIndicator = require('tns-core-modules/ui/activity-indicator')
+const button = require('tns-core-modules/ui/button')
+const datePicker = require('tns-core-modules/ui/date-picker')
+const dialogs = require('tns-core-modules/ui/dialogs')
+const editableTextBase = require('tns-core-modules/ui/editable-text-base')
+const htmlView = require('tns-core-modules/ui/html-view')
+const image = require('tns-core-modules/ui/image')
+const label = require('tns-core-modules/ui/label')
+const listPicker = require('tns-core-modules/ui/list-picker')
+const listView = require('tns-core-modules/ui/list-view')
+const placeholder = require('tns-core-modules/ui/placeholder')
+const progress = require('tns-core-modules/ui/progress')
+const scrollView = require('tns-core-modules/ui/scroll-view')
+const searchBar = require('tns-core-modules/ui/search-bar')
+const slider = require('tns-core-modules/ui/slider')
+const switchNS = require('tns-core-modules/ui/switch')
+const tabView = require('tns-core-modules/ui/tab-view')
+const textField = require('tns-core-modules/ui/text-field')
+const textView = require('tns-core-modules/ui/text-view')
+const timePicker = require('tns-core-modules/ui/time-picker')
+const webView = require('tns-core-modules/ui/web-view')
 
 const modules = {
-  contentView,
-  label,
-  textBase,
-  editableTextBase,
-  textField,
+  animation,
+  formattedString,
+  frame,
+  page,
+  absoluteLayout,
+  dockLayout,
+  flexboxLayout,
+  gridLayout,
   layoutBase,
   stackLayout,
-  page
+  wrapLayout,
+  activityIndicator,
+  button,
+  datePicker,
+  dialogs,
+  editableTextBase,
+  htmlView,
+  image,
+  label,
+  listPicker,
+  listView,
+  placeholder,
+  progress,
+  scrollView,
+  searchBar,
+  slider,
+  switchNS,
+  tabView,
+  textField,
+  textView,
+  timePicker,
+  webView
 }
 
 const toType = check.prototype.toType
 
 const PREACT_WIDGET_REF = '__preact_widget_ref__'
 
-// nodeName => module mapping
-const modMap = {
-  TEXTVIEW: 'textView',
-  TEXTFIELD: 'textField',
-  STACKLAYOUT: 'stackLayout'
+// NS Widgets
+const widgets = [
+  'AbsoluteLayout',
+  'ActionBar',
+  'ActionItem',
+  'ActivityIndicator',
+  'Button',
+  'ContainerView',
+  'ContentView',
+  'CustomLayoutView',
+  'DatePicker',
+  'DockLayout',
+  'EditableTextBase',
+  'FlexboxLayout',
+  'FormattedString',
+  'Frame',
+  'GridLayout',
+  'HtmlView',
+  'Image',
+  'Label',
+  'LayoutBase',
+  'ListPicker',
+  'ListView',
+  'NavigationButton',
+  'Observable',
+  'Page',
+  'Placeholder',
+  'Progress',
+  'Repeater',
+  'ScrollView',
+  'SearchBar',
+  'SegmentedBar',
+  'SegmentedBarItem',
+  'Slider',
+  'Span',
+  'StackLayout',
+  'Switch',
+  'TabView',
+  'TabViewItem',
+  'TextBase',
+  'TextField',
+  'TextView',
+  'TimePicker',
+  'View',
+  'ViewBase',
+  'WebView',
+  'WrapLayout'
+]
+
+// nodeName => module
+// Ex. TEXTVIEW => 'textView'
+const modMap = Object.fromEntries(widgets.map(w => [w.toUpperCase(), w[0].toLowerCase() + w.slice(1)]))
+
+// nodeName => class
+// Ex. TEXTVIEW => 'TextView'
+const classMap = Object.fromEntries(widgets.map(w => [w.toUpperCase(), w]))
+
+// handler mappings
+const handlerMap = {
+  input: 'textChange',
+  press: 'tap',
+  click: 'tap'
 }
 
-// nodeName => class mapping
-const classMap = {
-  PAGE: 'Page',
-  LABEL: 'Label',
-  TEXTVIEW: 'TextView',
-  TEXTFIELD: 'TextField',
-  STACKLAYOUT: 'StackLayout'
+// Map NativeScript components to createElement calls
+const makeComponent = componentName => {
+  function ComponentWrapper ({ children, ...props }) {
+    return h(componentName, props, children)
+  }
+  ComponentWrapper.displayName = componentName
+  return ComponentWrapper
 }
+let components = {}
+Object.values(classMap).map(componentName => {
+  components[componentName] = makeComponent(componentName)
+})
 
 // Create and attach NativeScript UI widget to Element
 const attachWidget = (el) => {
@@ -98,13 +213,6 @@ const build = (parentNode, target) => {
     return build(target)
   }
 
-  // Label
-  if (widget instanceof label.Label) {
-    console.log('build Label')
-    widget.text = parentNode.childNodes[0].data
-    return widget
-  }
-
   // Build Page
   if (widget instanceof page.Page) {
     console.log('build Page')
@@ -121,15 +229,12 @@ const build = (parentNode, target) => {
     }
   }
 
-  // Build Text
-  if (widget instanceof textBase.TextBase) {
-    if (parentNode.__handlers && parentNode.__handlers.input) {
-      console.log('build TextBase', parentNode.__handlers)
-      widget.on('textChange', function (ev) {
-        ev.type = 'Input'
-        parentNode.__handlers.input[0](ev)
-      })
-    }
+  // Label / Button
+  if (widget instanceof label.Label || widget instanceof button.Button) {
+    console.log('build Label/Button')
+    widget.text = parentNode.childNodes && parentNode.childNodes.length
+      ? parentNode.childNodes[0].data
+      : getAttr(parentNode.attributes, 'text')
   }
 
   // Sync Element attributes on NativeScript widget
@@ -138,6 +243,19 @@ const build = (parentNode, target) => {
   for (let x = 0; x < attrsLen; x++) {
     const attr = attrs[x]
     widget[attr.name] = attr.value
+  }
+
+  // Bind any found handlers
+  const eventNames = Object.keys(parentNode.__handlers || {})
+  if (eventNames.length) {
+    const len = eventNames.length
+    for (let x = 0; x < len; x++) {
+      const name = eventNames[x]
+      widget.on(handlerMap[eventNames[x]] || eventNames[x], function (ev) {
+        ev.type = name[0].toUpperCase() + name.slice(1)
+        parentNode.__handlers[name][0](ev)
+      })
+    }
   }
 
   return widget
@@ -149,9 +267,11 @@ const destroy = (parentNode) => {
 const update = (target, attributeName) => {
   const widget = target[PREACT_WIDGET_REF]
 
-  if (widget instanceof textBase.TextBase) {
-    const newVal = getAttr(target.attributes.slice(0), attributeName)
-    console.log('update', target.localName, { newVal })
+  const newVal = getAttr(target.attributes.slice(0), attributeName)
+  console.log('update', target.localName, { attributeName, newVal })
+  widget[attributeName] = newVal
+
+  if (attributeName === 'value') {
     widget.text = newVal
   }
 }
@@ -197,5 +317,6 @@ module.exports = {
   Component,
   h,
   useState,
-  useEffect
+  useEffect,
+  ...components
 }

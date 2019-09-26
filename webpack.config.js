@@ -183,6 +183,39 @@ module.exports = env => {
                 },
 
                 {
+                    test: /\.js(x?)$/,
+                    exclude: /node_modules/,
+                    use: {
+                        loader: "babel-loader",
+                        options: {
+                            babelrc: false,
+                            presets: [
+                                [
+                                    '@babel/preset-env',
+                                    {
+                                        loose: true,
+                                        modules: false,
+                                        targets: {
+                                            node: true
+                                        },
+                                        exclude: ['transform-regenerator', 'transform-async-to-generator'],
+                                    },
+                                ]
+                            ],
+                            plugins: [
+                                ['@babel/plugin-proposal-class-properties', { loose: true }],
+                                '@babel/plugin-proposal-object-rest-spread',
+                                '@babel/plugin-transform-object-assign',
+                                [
+                                    '@babel/plugin-transform-react-jsx',
+                                    { pragma: 'h', pragmaFrag: 'Fragment' },
+                                ]
+                            ]
+                        }
+                    },
+                },
+
+                {
                     test: /\.(js|css|scss|html|xml)$/,
                     use: "nativescript-dev-webpack/hmr/hot-loader"
                 },
