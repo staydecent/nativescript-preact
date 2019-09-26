@@ -1,43 +1,29 @@
-const Preact = require('preact')
+const {
+  render,
+  h,
+  useState,
+  useEffect
+} = require('./preact-render-to-nativescript')
+
 const application = require('tns-core-modules/application')
 
-const render = require('./preact-render-to-nativescript')
+function Demo () {
+  const [input, setInput] = useState('Finish NativeScript Preact example!')
+  const handleInput = ev => setInput(ev.value)
+  
+  useEffect(() => {
+    setTimeout(() => setInput('Changed!'), 2500)
+  }, [])
 
-const h = Preact.h
-
-class Demo extends Preact.Component {
-  constructor (props) {
-    super(props)
-    this.state = {
-      input: 'Finish NativeScript Preact example!'
-    }
-    this.onLoaded = this.onLoaded.bind(this)
-    this.handleInput = this.handleInput.bind(this)
-  }
-
-  onLoaded () {
-    console.log('onLoaded')
-  }
-
-  handleInput (ev) {
-    this.setState({ input: ev.value })
-  }
-
-  componentDidMount () {
-    setTimeout(() => this.setState({ input: 'vertical' }), 2500)
-  }
-
-  render () {
-    return h('Page', null, [
-      h('StackLayout', null, [
-        h('TextField', {
-          value: this.state.input,
-          onInput: this.handleInput
-        }),
-        h('Label', null, [this.state.input])
-      ])
+  return h('Page', null, [
+    h('StackLayout', null, [
+      h('TextField', {
+        text: input,
+        onInput: handleInput
+      }),
+      h('Label', null, [input])
     ])
-  }
+  ])
 }
 
 application.run({

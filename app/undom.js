@@ -113,7 +113,13 @@ function undom () {
     function Text (text) {
       Node.call(this, 3, '#text') // TEXT_NODE
       this.nodeValue = text
-      this.data = text
+      this.__defineGetter__('data', function () {
+        return this.nodeValue
+      })
+      this.__defineSetter__('data', function (val) {
+        this.nodeValue = val
+        this.parentNode.setAttribute('value', val)
+      })
     }
 
     if (Node) Text.__proto__ = Node
