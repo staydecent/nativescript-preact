@@ -1,11 +1,11 @@
-require('./unwindow')
-
-const { Component, h } = require('preact')
-const { useState, useEffect } = require('preact/hooks')
+const {
+  render,
+  h,
+  useState,
+  useEffect
+} = require('./preact-render-to-nativescript')
 
 const application = require('tns-core-modules/application')
-
-const render = require('./preact-render-to-nativescript')
 
 function Demo () {
   const [input, setInput] = useState('Finish NativeScript Preact example!')
@@ -14,7 +14,6 @@ function Demo () {
   useEffect(() => {
     setTimeout(() => setInput('Changed!'), 2500)
   }, [])
-
 
   return h('Page', null, [
     h('StackLayout', null, [
