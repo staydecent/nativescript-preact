@@ -3,6 +3,7 @@ const {
   h,
   useState,
   useEffect,
+  Button,
   Page,
   StackLayout,
   FlexboxLayout,
@@ -11,6 +12,7 @@ const {
 } = require('./preact-render-to-nativescript')
 
 const application = require('tns-core-modules/application')
+const dialogs = require('tns-core-modules/ui/dialogs')
 
 function Demo () {
   const [input, setInput] = useState('Finish NativeScript Preact example!')
@@ -25,6 +27,7 @@ function Demo () {
       <StackLayout>
         <TextField text={input} onInput={handleInput} />
         <Label>{input}</Label>
+        <Button onPress={() => dialogs.alert('Alert').then(() => console.log('Dialog closed!'))}>Alert!</Button>
         <FlexboxLayout flexWrap='wrap' height='300' width='300' backgroundColor='lightgray'>
           <Label text='Label 1' width='100' height='50' backgroundColor='red' />
           <Label text='Label 2' width='100' height='50' backgroundColor='green' />
