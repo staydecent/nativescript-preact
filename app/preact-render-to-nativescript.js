@@ -213,14 +213,6 @@ const build = (parentNode, target) => {
     return build(target)
   }
 
-  // Label / Button
-  if (widget instanceof label.Label || widget instanceof button.Button) {
-    console.log('build Label/Button')
-    widget.text = parentNode.childNodes && parentNode.childNodes.length
-      ? parentNode.childNodes[0].data
-      : getAttr(parentNode.attributes, 'text')
-  }
-
   // Build Page
   if (widget instanceof page.Page) {
     console.log('build Page')
@@ -235,6 +227,14 @@ const build = (parentNode, target) => {
       const childWidget = build(parentNode.childNodes[x])
       widget.addChild(childWidget)
     }
+  }
+
+  // Label / Button
+  if (widget instanceof label.Label || widget instanceof button.Button) {
+    console.log('build Label/Button')
+    widget.text = parentNode.childNodes && parentNode.childNodes.length
+      ? parentNode.childNodes[0].data
+      : getAttr(parentNode.attributes, 'text')
   }
 
   // Sync Element attributes on NativeScript widget
