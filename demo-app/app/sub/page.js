@@ -14,9 +14,11 @@ export function SubPage () {
   return (
     <Page>
       <ActionBar title='Sub Page' />
-      <StackLayout>
-        <Button onPress={handlePress}>Go Back</Button>
-      </StackLayout>
+      <ScrollView>
+        <StackLayout>
+          <Button onPress={handlePress}>Go Back</Button>
+        </StackLayout>
+      </ScrollView>
     </Page>
   )
 }

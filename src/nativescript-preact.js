@@ -16,6 +16,7 @@ const modules = {
   formattedString: () => require('tns-core-modules/text/formatted-string'),
   frame: () => require('tns-core-modules/ui/frame'),
   page: () => require('tns-core-modules/ui/page'),
+  contentView: () => require('tns-core-modules/ui/content-view'),
 
   // Layouts
   absoluteLayout: () => require('tns-core-modules/ui/layouts/absolute-layout'),
@@ -189,6 +190,8 @@ const build = (parentNode, target) => {
         break
       }
     }
+  } else if (widget instanceof modules.contentView().ContentView) {
+    widget.content = build(parentNode.childNodes[0])
   }
 
   // Build Layouts
