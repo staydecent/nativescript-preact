@@ -1,29 +1,18 @@
-function assign (obj, props) {
-  for (var i in props) obj[i] = props[i]
+const assign = (target, source) => Object.assign(target, source)
+const toLower = str => String(str).toLowerCase()
+const findWhere = (arr, fn, returnIndex, byValue) => {
+  let x = arr.length
+  while (x--) if (byValue ? arr[x] === fn : fn(arr[x])) break
+  return returnIndex ? x : arr[x]
 }
-
-function toLower (str) {
-  return String(str).toLowerCase()
+const splice = (arr, item, add, byValue) => {
+  let x = arr ? findWhere(arr, item, true, byValue) : -1
+  console.log('splice', x, ~x)
+  if (~x) add ? arr.splice(x, 0, add) : arr.splice(x, 1)
+  return x
 }
-
-function splice (arr, item, add, byValueOnly) {
-  var i = arr ? findWhere(arr, item, true, byValueOnly) : -1
-  if (~i) add ? arr.splice(i, 0, add) : arr.splice(i, 1)
-  return i
-}
-
-function findWhere (arr, fn, returnIndex, byValueOnly) {
-  var i = arr.length
-  while (i--) if (typeof fn === 'function' && !byValueOnly ? fn(arr[i]) : arr[i] === fn) break
-  return returnIndex ? i : arr[i]
-}
-
-function createAttributeFilter (ns, name) {
-  return function (o) { return o.ns === ns && toLower(o.name) === toLower(name) }
-}
-
-var resolved = typeof Promise !== 'undefined' && Promise.resolve()
-var setImmediate = resolved ? function (f) { resolved.then(f) } : setTimeout
+const createAttributeFilter = (ns, name) =>
+  attr => attr.ns === ns && toLower(attr.name) === toLower(name)
 
 /*
 const NODE_TYPES = {
@@ -38,231 +27,225 @@ const NODE_TYPES = {
 };
 */
 
-/** Create a minimally viable DOM Document
- *  @returns {Document} document
- */
-function undom () {
-  function isElement (node) {
-    return node.nodeType === 1
-  }
+function createEnvironment () {
+  const isElement = node => node.nodeType === 1
+  let observers = []
+  let pendingMutations = false
 
-  var observers = []
-
-  var pendingMutations = false
-
-  var Node = function Node (nodeType, nodeName) {
-    this.nodeType = nodeType
-    this.nodeName = nodeName
-    this.localName = nodeName
-    this.childNodes = []
-  }
-
-  var prototypeAccessors = { nextSibling: {}, previousSibling: {}, firstChild: {}, lastChild: {} }
-  prototypeAccessors.nextSibling.get = function () {
-    var p = this.parentNode
-    if (p) return p.childNodes[findWhere(p.childNodes, this, true) + 1]
-  }
-  prototypeAccessors.previousSibling.get = function () {
-    var p = this.parentNode
-    if (p) return p.childNodes[findWhere(p.childNodes, this, true) - 1]
-  }
-  prototypeAccessors.firstChild.get = function () {
-    return this.childNodes[0]
-  }
-  prototypeAccessors.lastChild.get = function () {
-    return this.childNodes[this.childNodes.length - 1]
-  }
-  Node.prototype.appendChild = function appendChild (child) {
-    child.remove()
-    child.parentNode = this
-    this.childNodes.push(child)
-    if (this.children && child.nodeType === 1) this.children.push(child)
-    mutation(this, 'childList', { addedNodes: [child], previousSibling: this.childNodes[this.childNodes.length - 2] })
-  }
-  Node.prototype.insertBefore = function insertBefore (child, ref) {
-    child.remove()
-    var i = splice(this.childNodes, ref, child); var ref2
-    if (!ref) {
-      this.appendChild(child)
-    } else {
-      if (~i && child.nodeType === 1) {
-        while (i < this.childNodes.length && (ref2 = this.childNodes[i]).nodeType !== 1 || ref === child) i++
-        if (ref2) splice(this.children, ref, child)
+  class Node {
+    constructor (nodeType, nodeName) {
+      this.nodeType = nodeType
+      this.nodeName = nodeName
+      this.localName = nodeName
+      this.childNodes = []
+    }
+    get nextSibling () {
+      let p = this.parentNode
+      if (p) return p.childNodes[findWhere(p.childNodes, this, true, true) + 1]
+    }
+    get previousSibling () {
+      let p = this.parentNode
+      if (p) return p.childNodes[findWhere(p.childNodes, this, true, true) - 1]
+    }
+    get firstChild () {
+      return this.childNodes[0]
+    }
+    get lastChild () {
+      return this.childNodes[this.childNodes.length - 1]
+    }
+    appendChild (child) {
+      this.insertBefore(child)
+      return child
+    }
+    insertBefore (child, ref) {
+      child.remove()
+      child.parentNode = this
+      if (ref) splice(this.childNodes, ref, child, true)
+      else this.childNodes.push(child)
+      mutation(this, 'childList', {
+        addedNodes: [child],
+        previousSibling: !ref && this.childNodes[this.childNodes.length - 2],
+        nextSibling: ref
+      })
+      return child
+    }
+    replaceChild (child, ref) {
+      if (ref.parentNode === this) {
+        this.insertBefore(child, ref)
+        ref.remove()
+        return ref
       }
-      mutation(this, 'childList', { addedNodes: [child], nextSibling: ref })
     }
-  }
-  Node.prototype.replaceChild = function replaceChild (child, ref) {
-    if (ref.parentNode === this) {
-      this.insertBefore(child, ref)
-      ref.remove()
-    }
-  }
-  Node.prototype.removeChild = function removeChild (child) {
-    var i = splice(this.childNodes, child)
-    if (child.nodeType === 1) splice(this.children, child)
-
-    mutation(this, 'childList', {
-      removedNodes: [child],
-      previousSibling: this.childNodes[i - 1],
-      nextSibling: this.childNodes[i]
-    })
-  }
-  Node.prototype.remove = function remove () {
-    if (this.parentNode) this.parentNode.removeChild(this)
-  }
-
-  Object.defineProperties(Node.prototype, prototypeAccessors)
-
-  var Text = (function (Node) {
-    function Text (text) {
-      Node.call(this, 3, '#text') // TEXT_NODE
-      this.nodeValue = text
-      this.__defineGetter__('data', function () {
-        return this.nodeValue
+    removeChild (child) {
+      const x = splice(this.childNodes, child, false, true)
+      mutation(this, 'childList', {
+        removedNodes: [child],
+        previousSibling: this.childNodes[x - 1],
+        nextSibling: this.childNodes[x]
       })
-      this.__defineSetter__('data', function (val) {
-        this.nodeValue = val
-        this.parentNode.setAttribute('value', val)
-      })
+      return child
     }
+    remove () {
+      if (this.parentNode) this.parentNode.removeChild(this)
+    }
+  }
 
-    if (Node) Text.__proto__ = Node
-    Text.prototype = Object.create(Node && Node.prototype)
-    Text.prototype.constructor = Text
-
-    var prototypeAccessors$1 = { textContent: {} }
-    prototypeAccessors$1.textContent.set = function (text) {
+  class Text extends Node {
+    constructor (text) {
+      super(3, '#text') // TEXT_NODE
       this.nodeValue = text
-      this.data = text
     }
-    prototypeAccessors$1.textContent.get = function () {
+    set textContent (text) {
+      this.nodeValue = text
+    }
+    get textContent () {
       return this.nodeValue
     }
+    set data (text) {
+      this.nodeValue = text
+    }
+    get data () {
+      return this.nodeValue
+    }
+  }
 
-    Object.defineProperties(Text.prototype, prototypeAccessors$1)
-
-    return Text
-  }(Node))
-
-  var Element = (function (Node) {
-    function Element (nodeType, nodeName) {
-      var this$1 = this
-
-      Node.call(this, nodeType || 1, nodeName) // ELEMENT_NODE
+  class Element extends Node {
+    constructor (nodeType, nodeName) {
+      super(nodeType || 1, nodeName) // ELEMENT_NODE
       this.attributes = []
       this.__handlers = {}
       this.style = {}
-      Object.defineProperty(this, 'class', {
-        set: function (val) { this$1.setAttribute('className', val) },
-        get: function () { return this$1.getAttribute('className') }
-      })
-      Object.defineProperty(this.style, 'cssText', {
-        set: function (val) { this$1.setAttribute('style', val) },
-        get: function () { return this$1.getAttribute('style') }
-      })
     }
 
-    if (Node) Element.__proto__ = Node
-    Element.prototype = Object.create(Node && Node.prototype)
-    Element.prototype.constructor = Element
+    get className () { return this.getAttribute('class') }
+    set className (val) { this.setAttribute('class', val) }
 
-    var prototypeAccessors$2 = { children: {} }
+    get cssText () { return this.getAttribute('style') }
+    set cssText (val) { this.setAttribute('style', val) }
 
-    prototypeAccessors$2.children.get = function () {
+    get children () {
       return this.childNodes.filter(isElement)
     }
 
-    Element.prototype.setAttribute = function setAttribute (key, value) {
+    setAttribute (key, value) {
       this.setAttributeNS(null, key, value)
     }
-    Element.prototype.getAttribute = function getAttribute (key) {
+    getAttribute (key) {
       return this.getAttributeNS(null, key)
     }
-    Element.prototype.removeAttribute = function removeAttribute (key) {
+    removeAttribute (key) {
       this.removeAttributeNS(null, key)
     }
 
-    Element.prototype.setAttributeNS = function setAttributeNS (ns, name, value) {
-      var attr = findWhere(this.attributes, createAttributeFilter(ns, name))
-
-      var oldValue = attr && attr.value
-      if (!attr) this.attributes.push(attr = { ns: ns, name: name })
+    setAttributeNS (ns, name, value) {
+      let attr = findWhere(this.attributes, createAttributeFilter(ns, name), false, false)
+      let oldValue = attr && attr.value
+      if (!attr) this.attributes.push(attr = { ns, name })
       attr.value = String(value)
       mutation(this, 'attributes', { attributeName: name, attributeNamespace: ns, oldValue: oldValue })
     }
-    Element.prototype.getAttributeNS = function getAttributeNS (ns, name) {
-      var attr = findWhere(this.attributes, createAttributeFilter(ns, name))
+    getAttributeNS (ns, name) {
+      let attr = findWhere(this.attributes, createAttributeFilter(ns, name), false, false)
       return attr && attr.value
     }
-    Element.prototype.removeAttributeNS = function removeAttributeNS (ns, name) {
-      splice(this.attributes, createAttributeFilter(ns, name))
+    removeAttributeNS (ns, name) {
+      splice(this.attributes, createAttributeFilter(ns, name), false, false)
       mutation(this, 'attributes', { attributeName: name, attributeNamespace: ns, oldValue: this.getAttributeNS(ns, name) })
     }
 
-    Element.prototype.addEventListener = function addEventListener (type, handler) {
+    addEventListener (type, handler) {
       (this.__handlers[toLower(type)] || (this.__handlers[toLower(type)] = [])).push(handler.bind(this))
     }
-    Element.prototype.removeEventListener = function removeEventListener (type, handler) {
-      splice(this.__handlers[toLower(type)], handler, 0, true)
+    removeEventListener (type, handler) {
+      splice(this.__handlers[toLower(type)], handler, false, true)
     }
-    Element.prototype.dispatchEvent = function dispatchEvent (event) {
-      var t = event.currentTarget = this
-
-      var c = event.cancelable
-
-      var l; var i
+    dispatchEvent (event) {
+      let t = event.target = this
+      let l
+      let i
       do {
+        event.currentTarget = t
         l = t.__handlers && t.__handlers[toLower(event.type)]
         if (l) {
           for (i = l.length; i--;) {
-            if ((l[i].call(t, event) === false || event._end) && c) break
+            if ((l[i].call(t, event) === false || event._end) && event.cancelable) {
+              event.defaultPrevented = true
+            }
           }
         }
-      } while (event.bubbles && !(c && event._stop) && (event.target = t = t.parentNode))
-      return !event.defaultPrevented
+      } while (event.bubbles && !(event.cancelable && event._stop) && (t = t.parentNode))
+      return l != null
+    }
+  }
+
+  class Document extends Element {
+    constructor () {
+      super(9, '#document') // DOCUMENT_NODE
     }
 
-    Object.defineProperties(Element.prototype, prototypeAccessors$2)
-
-    return Element
-  }(Node))
-
-  var Document = (function (Element) {
-    function Document () {
-      Element.call(this, 9, '#document') // DOCUMENT_NODE
+    createElement (type) {
+      return new Element(null, String(type).toUpperCase())
     }
 
-    if (Element) Document.__proto__ = Element
-    Document.prototype = Object.create(Element && Element.prototype)
-    Document.prototype.constructor = Document
+    createElementNS (ns, type) {
+      let element = this.createElement(type)
+      element.namespace = ns
+      return element
+    }
 
-    return Document
-  }(Element))
+    createTextNode (text) {
+      return new Text(text)
+    }
+  }
 
-  var Event = function Event (type, opts) {
-    this.type = type
-    this.bubbles = !!opts.bubbles
-    this.cancelable = !!opts.cancelable
+  class Event {
+    constructor (type, opts) {
+      this.type = type
+      this.bubbles = !!(opts && opts.bubbles)
+      this.cancelable = !!(opts && opts.cancelable)
+    }
+    stopPropagation () {
+      this._stop = true
+    }
+    stopImmediatePropagation () {
+      this._end = this._stop = true
+    }
+    preventDefault () {
+      this.defaultPrevented = true
+    }
   }
-  Event.prototype.stopPropagation = function stopPropagation () {
-    this._stop = true
-  }
-  Event.prototype.stopImmediatePropagation = function stopImmediatePropagation () {
-    this._end = this._stop = true
-  }
-  Event.prototype.preventDefault = function preventDefault () {
-    this.defaultPrevented = true
+
+  class MutationObserver {
+    constructor (callback) {
+      this.callback = callback
+      this._records = []
+    }
+
+    observe (target, options) {
+      this.disconnect()
+      this._target = target
+      this._options = options || {}
+      observers.push(this)
+    }
+
+    disconnect () {
+      this._target = null
+      splice(observers, this)
+    }
+
+    takeRecords () {
+      return this._records.splice(0, this._records.length)
+    }
   }
 
   function mutation (target, type, record) {
     record.target = target
     record.type = type
 
-    for (var i = observers.length; i--;) {
-      var ob = observers[i]
+    for (let x = observers.length; x--;) {
+      const ob = observers[x]
+      let match = target === ob._target
 
-      var match = target === ob._target
       if (!match && ob._options.subtree) {
         do {
           if ((match = target === ob._target)) break
@@ -272,7 +255,7 @@ function undom () {
         ob._records.push(record)
         if (!pendingMutations) {
           pendingMutations = true
-          setImmediate(flushMutations)
+          setTimeout(flushMutations, 0)
         }
       }
     }
@@ -280,8 +263,8 @@ function undom () {
 
   function flushMutations () {
     pendingMutations = false
-    for (var i = observers.length; i--;) {
-      var ob = observers[i]
+    for (let x = observers.length; x--;) {
+      const ob = observers[x]
       if (ob._records.length) {
         try {
           ob.callback(ob.takeRecords())
@@ -292,47 +275,37 @@ function undom () {
     }
   }
 
-  var MutationObserver = function MutationObserver (callback) {
-    this.callback = callback
-    this._records = []
-  }
-  MutationObserver.prototype.observe = function observe (target, options) {
-    this.disconnect()
-    this._target = target
-    this._options = options || {}
-    observers.push(this)
-  }
-  MutationObserver.prototype.disconnect = function disconnect () {
-    this._target = null
-    splice(observers, this)
-  }
-  MutationObserver.prototype.takeRecords = function takeRecords () {
-    return this._records.splice(0, this._records.length)
-  }
-
-  function createElement (type) {
-    return new Element(null, String(type).toUpperCase())
-  }
-
-  function createElementNS (ns, type) {
-    var element = createElement(type)
-    element.namespace = ns
-    return element
-  }
-
-  function createTextNode (text) {
-    return new Text(text)
-  }
-
+  /**
+   * Create a minimally viable DOM Document
+   *
+   * @returns {Document} document
+   */
   function createDocument () {
-    var document = new Document()
-    assign(document, document.defaultView = { document: document, MutationObserver: MutationObserver, Document: Document, Node: Node, Text: Text, Element: Element, SVGElement: Element, Event: Event })
-    assign(document, { documentElement: document, createElement: createElement, createElementNS: createElementNS, createTextNode: createTextNode })
-    document.appendChild(document.body = createElement('body'))
+    let document = new Document()
+    assign(document, document.defaultView = {
+      document,
+      Document,
+      Node,
+      Text,
+      Element,
+      SVGElement: Element,
+      Event,
+      MutationObserver
+    })
+    document.appendChild(
+      document.documentElement = document.createElement('html')
+    )
+    document.documentElement.appendChild(
+      document.head = document.createElement('head')
+    )
+    document.documentElement.appendChild(
+      document.body = document.createElement('body')
+    )
     return document
   }
 
-  return createDocument()
+  createDocument.env = createEnvironment
+  return createDocument
 }
 
-module.exports = undom
+module.exports = createEnvironment()
