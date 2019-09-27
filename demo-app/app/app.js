@@ -9,7 +9,7 @@ const {
   FlexboxLayout,
   TextField,
   Label
-} = require('./preact-render-to-nativescript')
+} = require('../../src/nativescript-preact')
 
 const application = require('tns-core-modules/application')
 const dialogs = require('tns-core-modules/ui/dialogs')
@@ -26,7 +26,7 @@ function Demo () {
     <Page>
       <StackLayout>
         <TextField text={input} onInput={handleInput} />
-        <Label class='my-label'>{input}</Label>
+        {input !== 'Changed!' && <Label class='my-label'>{input}</Label>}
         <Button
           bogusProps='cool'
           style='background-color: pink;'

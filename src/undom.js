@@ -278,7 +278,11 @@ function undom () {
     for (var i = observers.length; i--;) {
       var ob = observers[i]
       if (ob._records.length) {
-        ob.callback(ob.takeRecords())
+        try {
+          ob.callback(ob.takeRecords())
+        } catch (err) {
+          console.error(err)
+        }
       }
     }
   }
