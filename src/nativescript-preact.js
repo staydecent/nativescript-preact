@@ -220,15 +220,18 @@ const build = (parentNode, target) => {
 
   // Ensure the widget exists in the NS tree
   if (target && target.__preact_widget_ref__ && !widget.parent) {
-    // const targetWidget = target.__preact_widget_ref__
-    let pos
+    const targetWidget = target.__preact_widget_ref__
+    let pos = -1
     for (let x = 0; x < target.children.length; x++) {
       if (target.children[x] === parentNode) {
         pos = x
         break
       }
     }
-    console.log('ensure tree', pos, widget.parent)
+    if (pos !== -1) {
+      console.log('ensure tree', pos, targetWidget, widget)
+      targetWidget.insertChild(widget, pos)
+    }
   }
 
   return widget
