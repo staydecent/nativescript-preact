@@ -26,5 +26,8 @@
     "mobile",
     "native",
     "preact"
-  ]
+  ],
+  "standard": {
+    "globals": [ "h" ]
+  }
 }

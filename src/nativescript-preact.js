@@ -16,6 +16,7 @@ const modules = {
   formattedString: () => require('tns-core-modules/text/formatted-string'),
   frame: () => require('tns-core-modules/ui/frame'),
   page: () => require('tns-core-modules/ui/page'),
+  contentView: () => require('tns-core-modules/ui/content-view'),
 
   // Layouts
   absoluteLayout: () => require('tns-core-modules/ui/layouts/absolute-layout'),
@@ -27,6 +28,7 @@ const modules = {
   wrapLayout: () => require('tns-core-modules/ui/layouts/wrap-layout'),
 
   // Widgets
+  actionBar: () => require('tns-core-modules/ui/action-bar'),
   activityIndicator: () => require('tns-core-modules/ui/activity-indicator'),
   button: () => require('tns-core-modules/ui/button'),
   datePicker: () => require('tns-core-modules/ui/date-picker'),
@@ -178,8 +180,18 @@ const build = (parentNode, target) => {
 
   // Build Page
   if (widget instanceof modules.page().Page) {
-    const childWidget = build(parentNode.childNodes[0])
-    widget.content = childWidget
+    const children = parentNode.childNodes
+    const len = children.length
+    for (let x = 0; x < len; x++) {
+      if (children[x].localName === 'ACTIONBAR') {
+        widget.actionBar = build(children[x])
+      } else {
+        widget.content = build(children[x])
+        break
+      }
+    }
+  } else if (widget instanceof modules.contentView().ContentView) {
+    widget.content = build(parentNode.childNodes[0])
   }
 
   // Build Layouts
@@ -219,8 +231,8 @@ const build = (parentNode, target) => {
   }
 
   // Ensure the widget exists in the NS tree
-  if (target && target.__preact_widget_ref__ && !widget.parent) {
-    const targetWidget = target.__preact_widget_ref__
+  if (target && target[PREACT_WIDGET_REF] && !widget.parent) {
+    const targetWidget = target[PREACT_WIDGET_REF]
     let pos = -1
     for (let x = 0; x < target.children.length; x++) {
       if (target.children[x] === parentNode) {
@@ -238,13 +250,14 @@ const build = (parentNode, target) => {
 }
 
 const destroy = (parentNode, nodes) => {
-  const parentWidget = parentNode.__preact_widget_ref__
+  const parentWidget = parentNode[PREACT_WIDGET_REF]
+  if (!parentWidget) return
   const len = nodes.length
   console.log('destroy', parentWidget, { len })
   for (let x = 0; x < len; x++) {
     const node = nodes[x]
-    console.log('_removeView', parentWidget, node.__preact_widget_ref__)
-    parentWidget._removeView(node.__preact_widget_ref__)
+    console.log('_removeView', parentWidget, node[PREACT_WIDGET_REF])
+    parentWidget._removeView(node[PREACT_WIDGET_REF])
   }
 }
 
@@ -292,10 +305,22 @@ observer.observe(document.body, {
 })
 
 function render (Component) {
+  // Build default NS frame
+  const frameModule = modules.frame()
+  let topmost = frameModule.topmost()
+  if (!topmost) topmost = new frameModule.Frame()
+
+  // Mount to (un)DOM
   mount(h(Component), document.body)
-  // The first child of body is our top-level component; we can just
-  // return it's NativeScript counterpart/reference.
-  return document.body.childNodes[0][PREACT_WIDGET_REF]
+
+  // The first child of body is our top-level widget.
+  const page = document.body.childNodes[0][PREACT_WIDGET_REF]
+
+  // navigate our frame to the given Component widget counterpart.
+  topmost.navigate({ create: () => page })
+
+  // return frame for application.run.create
+  return topmost
 }
 
 module.exports = {
