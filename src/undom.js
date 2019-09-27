@@ -102,6 +102,10 @@ function createEnvironment () {
       return this.nodeValue
     }
     set data (text) {
+      // Trigger mutation for nativescript-preact to handle
+      // @TODO: Rather not have this tied to nativescript-preact implementation;
+      // How can we update textContent/nodeValue and trigger a DOM standard mutation?
+      this.parentNode.setAttribute('value', text)
       this.nodeValue = text
     }
     get data () {
