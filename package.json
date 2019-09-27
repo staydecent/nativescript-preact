@@ -1,6 +1,6 @@
 {
   "name": "nativescript-preact",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Native mobile applications using Preact and NativeScript.",
   "main": "src/nativescript-preact",
   "author": "Adrian Unger <dev@staydecent.ca>",
@@ -20,5 +20,11 @@
     "check-arg-types": "1.1.2",
     "preact": "10.0.0-rc.3"
   },
-  "keywords": ["nativescript", "integration", "mobile", "native", "preact"]
+  "keywords": [
+    "nativescript",
+    "integration",
+    "mobile",
+    "native",
+    "preact"
+  ]
 }
