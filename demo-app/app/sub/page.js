@@ -13,12 +13,10 @@ export function SubPage () {
 
   return (
     <Page>
-      <ActionBar text='Sub Page' />
-      <ScrollView>
-        <StackLayout>
-          <Button onPress={handlePress}>Go Back</Button>
-        </StackLayout>
-      </ScrollView>
+      <ActionBar title='Sub Page' />
+      <StackLayout>
+        <Button onPress={handlePress}>Go Back</Button>
+      </StackLayout>
     </Page>
   )
 }

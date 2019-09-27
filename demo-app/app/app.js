@@ -3,6 +3,7 @@ const {
   render,
   useState,
   useEffect,
+  ActionBar,
   Button,
   Page,
   StackLayout,
@@ -26,6 +27,7 @@ function Demo () {
 
   return (
     <Page>
+      <ActionBar title='Demo App' />
       <StackLayout>
         <TextField text={input} onInput={handleInput} />
         {input !== 'Changed!' && <Label class='my-label'>{input}</Label>}

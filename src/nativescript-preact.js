@@ -179,8 +179,16 @@ const build = (parentNode, target) => {
 
   // Build Page
   if (widget instanceof modules.page().Page) {
-    const childWidget = build(parentNode.childNodes[0])
-    widget.content = childWidget
+    const children = parentNode.childNodes
+    const len = children.length
+    for (let x = 0; x < len; x++) {
+      if (children[x].localName === 'ACTIONBAR') {
+        widget.actionBar = build(children[x])
+      } else {
+        widget.content = build(children[x])
+        break
+      }
+    }
   }
 
   // Build Layouts
