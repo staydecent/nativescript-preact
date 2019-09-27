@@ -1,6 +1,6 @@
 const {
-  render,
   h,
+  render,
   useState,
   useEffect,
   Button,
@@ -12,11 +12,13 @@ const {
 } = require('../../src/nativescript-preact')
 
 const application = require('tns-core-modules/application')
-const dialogs = require('tns-core-modules/ui/dialogs')
+
+const { SubPage } = require('./sub/page')
 
 function Demo () {
   const [input, setInput] = useState('Finish NativeScript Preact example!')
   const handleInput = ev => setInput(ev.value)
+  const handleNavigation = () => render(SubPage)
 
   useEffect(() => {
     setTimeout(() => setInput('Changed!'), 2500)
@@ -30,7 +32,7 @@ function Demo () {
         <Button
           bogusProps='cool'
           style='background-color: pink;'
-          onPress={() => dialogs.alert('Alert').then(() => console.log('Dialog closed!'))}
+          onPress={handleNavigation}
         >
           Alert!
         </Button>
