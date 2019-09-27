@@ -5,87 +5,51 @@ const undom = require('./undom')
 const check = require('check-arg-types')
 
 const { Component, h, render: mount } = require('preact')
-const { useState, useEffect } = require('preact/hooks')
-
-// UI Modules
-const animation = require('tns-core-modules/ui/animation')
-const formattedString = require('tns-core-modules/text/formatted-string')
-const frame = require('tns-core-modules/ui/frame')
-const page = require('tns-core-modules/ui/page')
-
-// Layouts
-const absoluteLayout = require('tns-core-modules/ui/layouts/absolute-layout')
-const dockLayout = require('tns-core-modules/ui/layouts/dock-layout')
-const flexboxLayout = require('tns-core-modules/ui/layouts/flexbox-layout')
-const gridLayout = require('tns-core-modules/ui/layouts/grid-layout')
-const layoutBase = require('tns-core-modules/ui/layouts/layout-base')
-const stackLayout = require('tns-core-modules/ui/layouts/stack-layout')
-const wrapLayout = require('tns-core-modules/ui/layouts/wrap-layout')
-
-// Widgets
-
-const activityIndicator = require('tns-core-modules/ui/activity-indicator')
-const button = require('tns-core-modules/ui/button')
-const datePicker = require('tns-core-modules/ui/date-picker')
-const dialogs = require('tns-core-modules/ui/dialogs')
-const editableTextBase = require('tns-core-modules/ui/editable-text-base')
-const htmlView = require('tns-core-modules/ui/html-view')
-const image = require('tns-core-modules/ui/image')
-const label = require('tns-core-modules/ui/label')
-const listPicker = require('tns-core-modules/ui/list-picker')
-const listView = require('tns-core-modules/ui/list-view')
-const placeholder = require('tns-core-modules/ui/placeholder')
-const progress = require('tns-core-modules/ui/progress')
-const scrollView = require('tns-core-modules/ui/scroll-view')
-const searchBar = require('tns-core-modules/ui/search-bar')
-const slider = require('tns-core-modules/ui/slider')
-const switchNS = require('tns-core-modules/ui/switch')
-const tabView = require('tns-core-modules/ui/tab-view')
-const textField = require('tns-core-modules/ui/text-field')
-const textView = require('tns-core-modules/ui/text-view')
-const timePicker = require('tns-core-modules/ui/time-picker')
-const webView = require('tns-core-modules/ui/web-view')
-
-const modules = {
-  animation,
-  formattedString,
-  frame,
-  page,
-  absoluteLayout,
-  dockLayout,
-  flexboxLayout,
-  gridLayout,
-  layoutBase,
-  stackLayout,
-  wrapLayout,
-  activityIndicator,
-  button,
-  datePicker,
-  dialogs,
-  editableTextBase,
-  htmlView,
-  image,
-  label,
-  listPicker,
-  listView,
-  placeholder,
-  progress,
-  scrollView,
-  searchBar,
-  slider,
-  switchNS,
-  tabView,
-  textField,
-  textView,
-  timePicker,
-  webView
-}
-
-const toType = check.prototype.toType
+const hooks = require('preact/hooks')
 
 const PREACT_WIDGET_REF = '__preact_widget_ref__'
+const toType = check.prototype.toType
 
-// NS Widgets
+const modules = {
+  // UI Modules
+  animation: () => require('tns-core-modules/ui/animation'),
+  formattedString: () => require('tns-core-modules/text/formatted-string'),
+  frame: () => require('tns-core-modules/ui/frame'),
+  page: () => require('tns-core-modules/ui/page'),
+
+  // Layouts
+  absoluteLayout: () => require('tns-core-modules/ui/layouts/absolute-layout'),
+  dockLayout: () => require('tns-core-modules/ui/layouts/dock-layout'),
+  flexboxLayout: () => require('tns-core-modules/ui/layouts/flexbox-layout'),
+  gridLayout: () => require('tns-core-modules/ui/layouts/grid-layout'),
+  layoutBase: () => require('tns-core-modules/ui/layouts/layout-base'),
+  stackLayout: () => require('tns-core-modules/ui/layouts/stack-layout'),
+  wrapLayout: () => require('tns-core-modules/ui/layouts/wrap-layout'),
+
+  // Widgets
+  activityIndicator: () => require('tns-core-modules/ui/activity-indicator'),
+  button: () => require('tns-core-modules/ui/button'),
+  datePicker: () => require('tns-core-modules/ui/date-picker'),
+  dialogs: () => require('tns-core-modules/ui/dialogs'),
+  editableTextBase: () => require('tns-core-modules/ui/editable-text-base'),
+  htmlView: () => require('tns-core-modules/ui/html-view'),
+  image: () => require('tns-core-modules/ui/image'),
+  label: () => require('tns-core-modules/ui/label'),
+  listPicker: () => require('tns-core-modules/ui/list-picker'),
+  listView: () => require('tns-core-modules/ui/list-view'),
+  placeholder: () => require('tns-core-modules/ui/placeholder'),
+  progress: () => require('tns-core-modules/ui/progress'),
+  scrollView: () => require('tns-core-modules/ui/scroll-view'),
+  searchBar: () => require('tns-core-modules/ui/search-bar'),
+  slider: () => require('tns-core-modules/ui/slider'),
+  switchNS: () => require('tns-core-modules/ui/switch'),
+  tabView: () => require('tns-core-modules/ui/tab-view'),
+  textField: () => require('tns-core-modules/ui/text-field'),
+  textView: () => require('tns-core-modules/ui/text-view'),
+  timePicker: () => require('tns-core-modules/ui/time-picker'),
+  webView: () => require('tns-core-modules/ui/web-view')
+}
+
 const widgets = [
   'AbsoluteLayout',
   'ActionBar',
@@ -170,11 +134,10 @@ const attachWidget = (el) => {
   }
 
   const modName = modMap[el.nodeName] || el.nodeName.toLowerCase()
-  const module = modules[modName]
+  const module = modules[modName]()
   const className = classMap[el.nodeName]
-  !module && console.log({ modName, className })
-
   const widget = new module[className]()
+
   const attrs = el.attributes
   const attrKeys = Object.keys(attrs)
   for (let x = 0; x < attrKeys.length; x++) {
@@ -182,6 +145,7 @@ const attachWidget = (el) => {
     const v = attrs[k]
     widget[k] = v
   }
+
   el[PREACT_WIDGET_REF] = widget
   return el
 }
@@ -209,20 +173,17 @@ const build = (parentNode, target) => {
 
   // textContent
   if (!widget && parentNode.nodeType === 3 && target) {
-    console.log('textContent', target.nodeName, target.childNodes[0].data)
     return build(target)
   }
 
   // Build Page
-  if (widget instanceof page.Page) {
-    console.log('build Page')
+  if (widget instanceof modules.page().Page) {
     const childWidget = build(parentNode.childNodes[0])
     widget.content = childWidget
   }
 
   // Build Layouts
-  if (widget instanceof layoutBase.LayoutBase) {
-    console.log('build Layout')
+  if (widget instanceof modules.layoutBase().LayoutBase) {
     for (let x = 0; x < parentNode.childNodes.length; x++) {
       const childWidget = build(parentNode.childNodes[x])
       widget.addChild(childWidget)
@@ -230,8 +191,7 @@ const build = (parentNode, target) => {
   }
 
   // Label / Button
-  if (widget instanceof label.Label || widget instanceof button.Button) {
-    console.log('build Label/Button')
+  if (widget instanceof modules.label().Label || widget instanceof modules.button().Button) {
     widget.text = parentNode.childNodes && parentNode.childNodes.length
       ? parentNode.childNodes[0].data
       : getAttr(parentNode.attributes, 'text')
@@ -258,10 +218,34 @@ const build = (parentNode, target) => {
     }
   }
 
+  // Ensure the widget exists in the NS tree
+  if (target && target.__preact_widget_ref__ && !widget.parent) {
+    const targetWidget = target.__preact_widget_ref__
+    let pos = -1
+    for (let x = 0; x < target.children.length; x++) {
+      if (target.children[x] === parentNode) {
+        pos = x
+        break
+      }
+    }
+    if (pos !== -1) {
+      console.log('ensure tree', pos, targetWidget, widget)
+      targetWidget.insertChild(widget, pos)
+    }
+  }
+
   return widget
 }
 
-const destroy = (parentNode) => {
+const destroy = (parentNode, nodes) => {
+  const parentWidget = parentNode.__preact_widget_ref__
+  const len = nodes.length
+  console.log('destroy', parentWidget, { len })
+  for (let x = 0; x < len; x++) {
+    const node = nodes[x]
+    console.log('_removeView', parentWidget, node.__preact_widget_ref__)
+    parentWidget._removeView(node.__preact_widget_ref__)
+  }
 }
 
 const update = (target, attributeName) => {
@@ -279,22 +263,25 @@ const update = (target, attributeName) => {
 // Observe (un)DOM changes
 const MutationObserver = document.defaultView.MutationObserver
 const observer = new MutationObserver(function (mutations) {
-  mutations.forEach((mutation) => {
+  const len = mutations.length
+  for (let x = 0; x < len; x++) {
+    const mutation = mutations[x]
     const { addedNodes, removedNodes, type, target } = mutation
+    console.log('mutation', type)
 
     if (type === 'attributes') {
-      console.log('mutation#attributes', target.localName, mutation.attributeName)
       update(target, mutation.attributeName)
     }
 
     if (addedNodes && addedNodes.length) {
+      console.log('build', target.localName, addedNodes[0].localName)
       build(addedNodes[0], target)
     }
 
-    if (removedNodes && removedNodes.length) {
-      destroy(removedNodes[0])
+    if (target && removedNodes && removedNodes.length) {
+      destroy(target, removedNodes)
     }
-  })
+  }
 })
 
 observer.observe(document.body, {
@@ -304,7 +291,6 @@ observer.observe(document.body, {
   subtree: true // descendants
 })
 
-// preact-render-to-nativescript
 function render (Component) {
   mount(h(Component), document.body)
   // The first child of body is our top-level component; we can just
@@ -316,7 +302,6 @@ module.exports = {
   render,
   Component,
   h,
-  useState,
-  useEffect,
+  ...hooks,
   ...components
 }
