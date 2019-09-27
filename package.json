@@ -1,8 +1,8 @@
 {
   "name": "nativescript-preact",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Native mobile applications using Preact and NativeScript.",
-  "main": "index.js",
+  "main": "src/nativescript-preact",
   "author": "Adrian Unger <dev@staydecent.ca>",
   "license": "MIT",
   "homepage": "https://github.com/staydecent/nativescript-preact#readme",
