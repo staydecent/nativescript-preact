@@ -224,8 +224,10 @@ const build = (parentNode, target) => {
 const destroy = (parentNode, nodes) => {
   const parentWidget = parentNode.__preact_widget_ref__
   const len = nodes.length
+  console.log('destroy', parentWidget, { len })
   for (let x = 0; x < len; x++) {
     const node = nodes[x]
+    console.log('_removeView', parentWidget, node.__preact_widget_ref__)
     parentWidget._removeView(node.__preact_widget_ref__)
   }
 }
@@ -249,16 +251,18 @@ const observer = new MutationObserver(function (mutations) {
   for (let x = 0; x < len; x++) {
     const mutation = mutations[x]
     const { addedNodes, removedNodes, type, target } = mutation
+    console.log('mutation', { type })
 
     if (type === 'attributes') {
       update(target, mutation.attributeName)
     }
 
     if (addedNodes && addedNodes.length) {
+      console.log('build', target.localName, addedNodes[0].localName)
       build(addedNodes[0], target)
     }
 
-    if (removedNodes && removedNodes.length) {
+    if (target && removedNodes && removedNodes.length) {
       destroy(target, removedNodes)
     }
   }

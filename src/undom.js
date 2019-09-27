@@ -101,7 +101,12 @@ function undom () {
   Node.prototype.removeChild = function removeChild (child) {
     var i = splice(this.childNodes, child)
     if (child.nodeType === 1) splice(this.children, child)
-    mutation(this, 'childList', { removedNodes: [child], previousSibling: this.childNodes[i - 1], nextSibling: this.childNodes[i] })
+
+    mutation(this, 'childList', {
+      removedNodes: [child],
+      previousSibling: this.childNodes[i - 1],
+      nextSibling: this.childNodes[i]
+    })
   }
   Node.prototype.remove = function remove () {
     if (this.parentNode) this.parentNode.removeChild(this)
