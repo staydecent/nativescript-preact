@@ -10,10 +10,9 @@
     }
   },
   "dependencies": {
-    "check-arg-types": "1.1.0",
-    "nativescript-theme-core": "1.0.4",
+    "nativescript-theme-core": "2.0.22",
     "preact": "10.0.0-rc.3",
-    "tns-core-modules": "6.0.1"
+    "tns-core-modules": "6.1.1"
   },
   "devDependencies": {
     "@babel/core": "7.6.2",
@@ -23,11 +22,11 @@
     "@babel/plugin-transform-react-jsx": "7.3.0",
     "@babel/preset-env": "7.6.2",
     "babel-loader": "8.0.6",
-    "babel-traverse": "6.25.0",
-    "babel-types": "6.25.0",
-    "babylon": "6.17.4",
+    "babel-traverse": "6.26.0",
+    "babel-types": "6.26.0",
+    "babylon": "6.18.0",
     "lazy": "1.0.11",
     "nativescript-dev-android-snapshot": "0.*.*",
-    "nativescript-dev-webpack": "1.0.1"
+    "nativescript-dev-webpack": "1.2.0"
   }
 }

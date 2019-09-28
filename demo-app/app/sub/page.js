@@ -1,3 +1,4 @@
+/** @jsx h */
 const {
   h,
   ActionBar,
