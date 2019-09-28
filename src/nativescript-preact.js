@@ -8,7 +8,6 @@ const { Component, h, render: mount } = require('preact')
 const hooks = require('preact/hooks')
 
 const PREACT_WIDGET_REF = '__preact_widget_ref__'
-const toType = check.prototype.toType
 
 const modules = {
   // UI Modules
@@ -130,7 +129,7 @@ Object.values(classMap).map(componentName => {
 
 // Create and attach NativeScript UI widget to Element
 const attachWidget = (el) => {
-  const type = toType(el)
+  const type = check.toType(el)
   if (type === 'string') {
     return el
   }
