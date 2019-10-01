@@ -6,7 +6,10 @@ Why? Because I prefer the (P)React pattern of building UIs over what Angular off
 
 ## Getting Started
 
-A proper template repo and documentation is needed. For now, you can copy the `demo-app` folder from this repo as a starting point.
+1. [Install NativeScript CLI](https://docs.nativescript.org/start/quick-setup)
+2. Generate a new repo based on [NativeScript Preact Template](https://github.com/staydecent/nativescript-preact-template/generate)
+3. Clone your new repo.
+4. `npm install` and `nativescript run android` (or `ios`)
 
 ## This is Alpha Software!
 
